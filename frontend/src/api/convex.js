@@ -3,8 +3,8 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
 
-const url = import.meta.env.VITE_CONVEX_URL;
-if (!url) console.warn("VITE_CONVEX_URL is not set — Convex calls will fail.");
+// Fall back to the known deployment URL so a missing env var never blanks the app.
+const url = import.meta.env.VITE_CONVEX_URL || "https://chatty-flamingo-542.convex.cloud";
 
 export const convex = new ConvexHttpClient(url);
 export { api };

@@ -1,0 +1,852 @@
+// This is your Prisma schema file for Find My Homie (FMH)
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum UserRole {
+  SEEKER
+  HOST
+  BOTH
+  ADMIN
+}
+
+enum UserIntent {
+  FIND_ROOM
+  FIND_PEOPLE
+  FILL_ROOM
+}
+
+enum ProfileStatus {
+  DRAFT
+  PUBLISHED
+  PAUSED
+  DELETED
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+  PAUSED
+  FILLED
+  STALE
+  DELETED
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  BLOCKED
+}
+
+enum ViewingStatus {
+  REQUESTED
+  CONFIRMED
+  CANCELLED
+  RESCHEDULED
+  ATTENDED
+  NO_SHOW
+}
+
+enum VerificationLabel {
+  PHONE_VERIFIED
+  EMAIL_VERIFIED
+  SOCIAL_LINKED
+  LISTING_REVIEWED
+  POSTER_AUTHORITY_DECLARED
+  IDENTITY_CHECKED
+  NOT_VERIFIED
+}
+
+enum ConfirmationStatus {
+  PROPOSED
+  CONFIRMED
+  REJECTED
+  NEEDS_CLARIFICATION
+}
+
+enum PreferenceStrength {
+  MUST_HAVE
+  STRONG_PREFERENCE
+  FLEXIBLE
+}
+
+enum RoomType {
+  PRIVATE
+  SHARED
+  STUDIO
+  ENTIRE_FLAT
+}
+
+enum DietaryPreference {
+  VEGETARIAN
+  VEGETARIAN_EGGS_OKAY
+  EGGS_OKAY_NO_MEAT
+  NON_VEGETARIAN
+  VEGAN
+  JAIN
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum AlcoholPreference {
+  NO_ALCOHOL_IN_HOME
+  OKAY_OUTSIDE_NOT_AT_HOME
+  OCCASIONAL_OKAY
+  OKAY_WITH_BOUNDARIES
+  NO_PREFERENCE
+}
+
+enum SmokingPreference {
+  NO_INDOOR
+  OUTDOORS_ONLY
+  DESIGNATED_AREA_OKAY
+  NOT_COMFORTABLE
+  NO_PREFERENCE
+}
+
+enum GuestPolicy {
+  NO_OVERNIGHT
+  ADVANCE_NOTICE
+  AGREED_FREQUENCY
+  FLEXIBLE
+  OTHER
+}
+
+enum SleepSchedule {
+  EARLY_BIRD
+  STANDARD
+  NIGHT_OWL
+  SHIFT_WORK
+  VARIABLE
+}
+
+enum CleanlinessLevel {
+  VERY_CLEAN
+  REASONABLY_CLEAN
+  RELAXED
+  FLEXIBLE
+}
+
+enum SocialLevel {
+  MOSTLY_INDEPENDENT
+  OCCASIONAL_SHARED_NO_PRESSURE
+  REGULAR_MEALS_ACTIVITIES
+  CLOSE_KNIT
+}
+
+enum MeetingMode {
+  IN_PERSON
+  VIDEO_CALL
+  EITHER
+}
+
+enum ReportType {
+  SPAM
+  FAKE_LISTING
+  HARASSMENT
+  PAYMENT_SCAM
+  IMPERSONATION
+  OFFENSIVE_CONTENT
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum NotificationType {
+  CONNECTION_REQUEST
+  CONNECTION_ACCEPTED
+  VIEWING_REQUEST
+  VIEWING_CONFIRMED
+  VIEWING_REMINDER
+  VIEWING_CANCELLED
+  LISTING_STALE_WARNING
+  PROFILE_INCOMPLETE
+  SYSTEM
+}
+
+// ─────────────────────────────────────────────
+// USER
+// ─────────────────────────────────────────────
+
+model User {
+  id                String        @id @default(uuid())
+  email             String        @unique
+  phone             String?       @unique
+  passwordHash      String
+  firstName         String
+  lastName          String?
+  displayName       String?
+  avatarUrl         String?
+  role              UserRole      @default(SEEKER)
+  intent            UserIntent?
+  isActive          Boolean       @default(true)
+  isAdmin           Boolean       @default(false)
+  emailVerified     Boolean       @default(false)
+  phoneVerified     Boolean       @default(false)
+  preferredLanguage String        @default("en")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  lastActiveAt      DateTime?
+  deletedAt         DateTime?
+
+  // Relations
+  profile               Profile?
+  listings              Listing[]
+  sentConnections       Connection[]        @relation("SentConnections")
+  receivedConnections   Connection[]        @relation("ReceivedConnections")
+  sentViewingRequests   ViewingRequest[]    @relation("SeekerViewings")
+  hostedViewings        ViewingRequest[]    @relation("HostViewings")
+  socialVerifications   SocialVerification[]
+  verificationLabels    UserVerification[]
+  notifications         Notification[]
+  reportsSubmitted      Report[]            @relation("ReportedBy")
+  reportsReceived       Report[]            @relation("ReportedUser")
+  conversationMessages  Message[]
+  conversationsA        Conversation[]      @relation("ConversationUserA")
+  conversationsB        Conversation[]      @relation("ConversationUserB")
+  blockedUsers          Block[]             @relation("BlockerUser")
+  blockedByUsers        Block[]             @relation("BlockedUser")
+  buddyGroup            BuddyGroupMember[]
+  ownedBuddyGroups      BuddyGroup[]
+  savedListings         SavedListing[]
+  savedProfiles         SavedProfile[]
+  analyticsEvents       AnalyticsEvent[]
+  passwordResetTokens   PasswordResetToken[]
+  emailVerifyTokens     EmailVerifyToken[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// PROFILE (Seeker / Homie Card)
+// ─────────────────────────────────────────────
+
+model Profile {
+  id            String        @id @default(uuid())
+  userId        String        @unique
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status        ProfileStatus @default(DRAFT)
+  bio           String?       @db.Text
+  homieCardText String?       @db.Text
+
+  // Housing Essentials
+  cityArea          String?
+  preferredAreas    String[]
+  budgetMin         Int?
+  budgetMax         Int?
+  budgetIncludesAll Boolean    @default(false)
+  moveInDate        DateTime?
+  moveInFlexDays    Int?
+  roomType          RoomType?
+  durationMin       Int?
+  durationMax       Int?
+
+  // Lifestyle
+  sleepSchedule     SleepSchedule?
+  cleanlinessLevel  CleanlinessLevel?
+  socialLevel       SocialLevel?
+  workFromHome      Boolean?
+  wfhDaysPerWeek    Int?
+
+  // Food & Household (India-specific)
+  dietaryPreference    DietaryPreference?
+  cookingBoundary      String?
+  kitchenArrangement   String?
+  foodRuleType         PreferenceStrength?
+  religiousPractice    String?            @db.Text
+  alcoholPreference    AlcoholPreference?
+  smokingPreference    SmokingPreference?
+  familyVisits         String?
+  guestPolicy          GuestPolicy?
+  guestPolicyDetail    String?
+  domesticHelp         String?
+  pets                 String?
+  otherDealbreakers    String?            @db.Text
+  dealbreakersStrength PreferenceStrength?
+
+  // Privacy controls
+  religiousPracticePublic Boolean @default(false)
+  dietPublic              Boolean @default(true)
+  phonePublic             Boolean @default(false)
+  bioPublic               Boolean @default(true)
+
+  // Metadata
+  profileCompletionScore Int       @default(0)
+  schemaVersion          String    @default("profile-v1.0")
+  publishedAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  // Relations
+  profileFields   ProfileField[]
+  quizAnswers     QuizAnswer[]
+  matchesAsSeeker Match[]        @relation("SeekerMatches")
+
+  @@index([userId])
+  @@index([status])
+  @@index([cityArea])
+  @@index([budgetMax])
+  @@map("profiles")
+}
+
+// ─────────────────────────────────────────────
+// PROFILE FIELD (Canonical extracted fields with provenance)
+// ─────────────────────────────────────────────
+
+model ProfileField {
+  id                 String             @id @default(uuid())
+  profileId          String
+  profile            Profile            @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  fieldKey           String
+  value              String             @db.Text
+  currency           String?            @default("INR")
+  sourceChannel      String?
+  sourceMessageRef   String?
+  confidence         Float?
+  confirmationStatus ConfirmationStatus @default(PROPOSED)
+  consentScope       String?
+  schemaVersion      String             @default("profile-v1.2")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([profileId])
+  @@index([fieldKey])
+  @@map("profile_fields")
+}
+
+// ─────────────────────────────────────────────
+// QUIZ ANSWER
+// ─────────────────────────────────────────────
+
+model QuizAnswer {
+  id           String             @id @default(uuid())
+  profileId    String
+  profile      Profile            @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  questionId   String
+  questionText String
+  answerRaw    String?            @db.Text
+  answerCode   String?
+  strength     PreferenceStrength?
+  isSkipped    Boolean            @default(false)
+  isPrivate    Boolean            @default(false)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([profileId, questionId])
+  @@index([profileId])
+  @@map("quiz_answers")
+}
+
+// ─────────────────────────────────────────────
+// LISTING
+// ─────────────────────────────────────────────
+
+model Listing {
+  id          String        @id @default(uuid())
+  hostId      String
+  host        User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  status      ListingStatus @default(DRAFT)
+  title       String
+  description String?       @db.Text
+
+  // Location
+  city           String
+  area           String
+  address        String?
+  latitude       Float?
+  longitude      Float?
+  googleMapsLink String?
+
+  // Room details
+  roomType      RoomType
+  totalBedrooms Int?
+  availableBeds Int       @default(1)
+  bathroomType  String?
+  furnished     Boolean?
+  amenities     String[]
+
+  // Costs
+  rent              Int
+  rentIncludes      String?
+  maintenance       Int?
+  maintenanceNote   String?
+  utilitiesIncluded Boolean  @default(false)
+  utilitiesNote     String?
+  deposit           Int?
+  depositNote       String?
+  brokerage         Int?
+  brokerageNote     String?
+  brokerPays        String?
+  otherFees         Int?
+  otherFeesNote     String?
+  totalUpfrontEstimate Int?
+  totalRecurring       Int?
+
+  // Availability
+  availableFrom    DateTime
+  availableTo      DateTime?
+  leaseDurationMin Int?
+  leaseDurationMax Int?
+
+  // Household
+  currentOccupants  Int       @default(0)
+  maxOccupants      Int?
+  householdVibe     String?
+  houseRules        String[]
+  cookingRules      String?   @db.Text
+  guestPolicy       GuestPolicy?
+  smokingAllowed    Boolean?
+  petsAllowed       Boolean?
+
+  // Host declarations
+  posterIsAgent   Boolean @default(false)
+  posterAuthority String?
+
+  // Verification
+  listingReviewed Boolean  @default(false)
+  reviewedFields  String[]
+
+  // Freshness
+  lastConfirmedAt DateTime?
+  staleWarningAt  DateTime?
+  publishedAt     DateTime?
+  filledAt        DateTime?
+
+  // Metadata
+  viewCount     Int    @default(0)
+  schemaVersion String @default("listing-v1.0")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  photos          ListingPhoto[]
+  viewingSlots    ViewingSlot[]
+  viewingRequests ViewingRequest[]
+  connections     Connection[]
+  matches         Match[]
+  savedBy         SavedListing[]
+
+  @@index([hostId])
+  @@index([status])
+  @@index([city, area])
+  @@index([rent])
+  @@index([availableFrom])
+  @@map("listings")
+}
+
+// ─────────────────────────────────────────────
+// LISTING PHOTO
+// ─────────────────────────────────────────────
+
+model ListingPhoto {
+  id        String   @id @default(uuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([listingId])
+  @@map("listing_photos")
+}
+
+// ─────────────────────────────────────────────
+// VIEWING SLOT
+// ─────────────────────────────────────────────
+
+model ViewingSlot {
+  id             String      @id @default(uuid())
+  listingId      String
+  listing        Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  startTime      DateTime
+  endTime        DateTime
+  capacity       Int         @default(1)
+  bookedCount    Int         @default(0)
+  bufferMinutes  Int         @default(15)
+  minNoticeHours Int         @default(2)
+  meetingMode    MeetingMode @default(IN_PERSON)
+  timezone       String      @default("Asia/Kolkata")
+  isAvailable    Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  viewingRequests ViewingRequest[]
+
+  @@index([listingId])
+  @@index([startTime])
+  @@map("viewing_slots")
+}
+
+// ─────────────────────────────────────────────
+// VIEWING REQUEST
+// ─────────────────────────────────────────────
+
+model ViewingRequest {
+  id              String        @id @default(uuid())
+  seekerId        String
+  seeker          User          @relation("SeekerViewings", fields: [seekerId], references: [id])
+  hostId          String
+  host            User          @relation("HostViewings", fields: [hostId], references: [id])
+  listingId       String
+  listing         Listing       @relation(fields: [listingId], references: [id])
+  slotId          String?
+  slot            ViewingSlot?  @relation(fields: [slotId], references: [id])
+  status          ViewingStatus @default(REQUESTED)
+  meetingMode     MeetingMode?
+  message         String?       @db.Text
+  proposedTime    DateTime?
+  confirmedTime   DateTime?
+  cancelReason    String?
+  rescheduleCount Int           @default(0)
+  reminderSentAt  DateTime?
+  attendedAt      DateTime?
+  noShowAt        DateTime?
+  outcomeNote     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([seekerId])
+  @@index([hostId])
+  @@index([listingId])
+  @@index([status])
+  @@map("viewing_requests")
+}
+
+// ─────────────────────────────────────────────
+// CONNECTION
+// ─────────────────────────────────────────────
+
+model Connection {
+  id                String           @id @default(uuid())
+  senderId          String
+  sender            User             @relation("SentConnections", fields: [senderId], references: [id])
+  receiverId        String
+  receiver          User             @relation("ReceivedConnections", fields: [receiverId], references: [id])
+  listingId         String?
+  listing           Listing?         @relation(fields: [listingId], references: [id])
+  status            ConnectionStatus @default(PENDING)
+  message           String?          @db.Text
+  contactRevealedAt DateTime?
+  declineReason     String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  conversation Conversation?
+
+  @@unique([senderId, receiverId, listingId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+  @@map("connections")
+}
+
+// ─────────────────────────────────────────────
+// MATCH
+// ─────────────────────────────────────────────
+
+model Match {
+  id              String  @id @default(uuid())
+  seekerProfileId String
+  seekerProfile   Profile @relation("SeekerMatches", fields: [seekerProfileId], references: [id])
+  listingId       String
+  listing         Listing @relation(fields: [listingId], references: [id])
+
+  isFeasible        Boolean
+  feasibilityReason String?
+  compatibilityScore Float?
+  coverageScore      Float?
+  confidenceScore    Float?
+  freshnessFactor    Float?
+  overallRank        Int?
+
+  explanationPositive  String[]
+  explanationTradeoffs String[]
+
+  budgetScore  Float?
+  areaScore    Float?
+  foodScore    Float?
+  routineScore Float?
+  socialScore  Float?
+  guestsScore  Float?
+  smokingScore Float?
+  petsScore    Float?
+
+  algorithmVersion String   @default("v1.0")
+  computedAt       DateTime @default(now())
+  expiresAt        DateTime?
+
+  @@index([seekerProfileId])
+  @@index([listingId])
+  @@index([overallRank])
+  @@map("matches")
+}
+
+// ─────────────────────────────────────────────
+// CONVERSATION & MESSAGES
+// ─────────────────────────────────────────────
+
+model Conversation {
+  id           String     @id @default(uuid())
+  connectionId String     @unique
+  connection   Connection @relation(fields: [connectionId], references: [id])
+  userAId      String
+  userA        User       @relation("ConversationUserA", fields: [userAId], references: [id])
+  userBId      String
+  userB        User       @relation("ConversationUserB", fields: [userBId], references: [id])
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  messages Message[]
+
+  @@index([userAId])
+  @@index([userBId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  content        String       @db.Text
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────
+// BUDDY GROUP
+// ─────────────────────────────────────────────
+
+model BuddyGroup {
+  id          String   @id @default(uuid())
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  name        String?
+  description String?  @db.Text
+  maxSize     Int      @default(4)
+  city        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members BuddyGroupMember[]
+
+  @@index([ownerId])
+  @@map("buddy_groups")
+}
+
+model BuddyGroupMember {
+  id       String     @id @default(uuid())
+  groupId  String
+  group    BuddyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id])
+  joinedAt DateTime   @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+  @@map("buddy_group_members")
+}
+
+// ─────────────────────────────────────────────
+// SOCIAL VERIFICATION
+// ─────────────────────────────────────────────
+
+model SocialVerification {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform       String
+  platformUserId String?
+  profileUrl     String?
+  verifiedAt     DateTime?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+
+  @@unique([userId, platform])
+  @@index([userId])
+  @@map("social_verifications")
+}
+
+model UserVerification {
+  id         String            @id @default(uuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label      VerificationLabel
+  verifiedAt DateTime?
+  expiresAt  DateTime?
+  provider   String?
+  notes      String?
+  createdAt  DateTime          @default(now())
+
+  @@unique([userId, label])
+  @@index([userId])
+  @@map("user_verifications")
+}
+
+// ─────────────────────────────────────────────
+// SAVED LISTINGS & PROFILES
+// ─────────────────────────────────────────────
+
+model SavedListing {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  savedAt   DateTime @default(now())
+
+  @@unique([userId, listingId])
+  @@map("saved_listings")
+}
+
+model SavedProfile {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  savedProfileId String
+  savedAt        DateTime @default(now())
+
+  @@unique([userId, savedProfileId])
+  @@map("saved_profiles")
+}
+
+// ─────────────────────────────────────────────
+// BLOCK & REPORT
+// ─────────────────────────────────────────────
+
+model Block {
+  id        String   @id @default(uuid())
+  blockerId String
+  blocker   User     @relation("BlockerUser", fields: [blockerId], references: [id])
+  blockedId String
+  blocked   User     @relation("BlockedUser", fields: [blockedId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@map("blocks")
+}
+
+model Report {
+  id                String       @id @default(uuid())
+  reportedById      String
+  reportedBy        User         @relation("ReportedBy", fields: [reportedById], references: [id])
+  reportedUserId    String?
+  reportedUser      User?        @relation("ReportedUser", fields: [reportedUserId], references: [id])
+  reportedListingId String?
+  reportType        ReportType
+  status            ReportStatus @default(OPEN)
+  description       String?      @db.Text
+  evidence          String[]
+  adminNote         String?      @db.Text
+  resolvedAt        DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([reportedById])
+  @@index([reportedUserId])
+  @@index([status])
+  @@map("reports")
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String           @db.Text
+  data      Json?
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+// ─────────────────────────────────────────────
+// ANALYTICS EVENTS
+// ─────────────────────────────────────────────
+
+model AnalyticsEvent {
+  id         String    @id @default(uuid())
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event      String
+  properties Json?
+  sessionId  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+// ─────────────────────────────────────────────
+// AUTH TOKENS
+// ─────────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+model EmailVerifyToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@map("email_verify_tokens")
+}

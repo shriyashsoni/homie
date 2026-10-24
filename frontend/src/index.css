@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    background-color: #FCF7F0;
+    color: #2C1B14;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body { font-family: 'Inter', system-ui, sans-serif; }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  * { box-sizing: border-box; }
+
+  ::selection { background: rgba(170, 0, 3, 0.12); color: #AA0003; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(170, 0, 3, 0.22); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(170, 0, 3, 0.4); }
+}
+
+@layer components {
+
+  /* ─── Buttons (pill-shaped per brand) ─── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-brand-500 text-white
+           px-6 py-3 rounded-full font-semibold text-sm
+           hover:bg-brand-600 active:scale-[0.98]
+           transition-all duration-150
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2
+           border border-charcoal/20 text-charcoal bg-transparent
+           px-6 py-3 rounded-full font-semibold text-sm
+           hover:border-charcoal/40 hover:bg-charcoal/[0.03] active:scale-[0.98]
+           transition-all duration-150 disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-charcoal/70 px-4 py-2.5 rounded-full font-medium text-sm
+           hover:bg-charcoal/[0.05] hover:text-charcoal
+           transition-all duration-150;
+  }
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2
+           bg-charcoal text-white
+           px-6 py-3 rounded-full font-semibold text-sm
+           hover:bg-ink active:scale-[0.98]
+           transition-all duration-150;
+  }
+
+  /* ─── Inputs ─── */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl
+           border border-charcoal/15 bg-white
+           text-charcoal placeholder-clay/60
+           focus:outline-none focus:ring-2 focus:ring-brand-500/15 focus:border-brand-500
+           transition-all duration-150 text-sm;
+  }
+  .input-field:hover:not(:focus) { @apply border-charcoal/25; }
+
+  /* ─── Cards ─── */
+  .card {
+    @apply bg-white rounded-2xl border border-charcoal/[0.08] shadow-card;
+  }
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-card-hover hover:-translate-y-0.5;
+  }
+
+  /* ─── Badges / chips ─── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium
+           border border-charcoal/12 bg-white text-charcoal
+           transition-all duration-150;
+  }
+  .chip:hover { @apply border-brand-500 text-brand-500 bg-brand-50; }
+
+  /* ─── Typography ─── */
+  .page-title { @apply text-2xl md:text-3xl font-bold text-charcoal font-display; }
+  .section-label {
+    @apply text-2xs font-semibold text-brand-500 uppercase tracking-[0.14em];
+  }
+
+  /* ─── Skeleton shimmer ─── */
+  .skeleton { @apply rounded-lg bg-sand/60 overflow-hidden relative; }
+  .skeleton::after {
+    content: ''; @apply absolute inset-0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s linear infinite;
+  }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+}
+
+/* ═══ Restrained editorial utilities (no SaaS gradients / blobs / glass) ═══ */
+
+/* Hairline rules */
+.rule-t { border-top: 1px solid rgba(44,27,20,0.09); }
+.rule-b { border-bottom: 1px solid rgba(44,27,20,0.09); }
+
+/* Dark panels use flat Inkwell — no glow, no spotlight */
+.panel-dark { background: #221510; }
+
+/* Very subtle warm paper grain — editorial, not decorative */
+.grain { position: relative; }
+.grain::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.35; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+}
+
+/* Restrained product-card shadow */
+.shadow-mock {
+  box-shadow: 0 2px 4px rgba(44,27,20,0.05), 0 12px 32px rgba(44,27,20,0.10);
+}
+
+/* Logo-strip edge fade */
+.edge-fade {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* Underline grow on hover (nav) */
+.link-grow { position: relative; }
+.link-grow::after {
+  content: ''; position: absolute; left: 0; bottom: -3px;
+  width: 100%; height: 1.5px; background: currentColor;
+  transform: scaleX(0); transform-origin: left; transition: transform .25s ease;
+}
+.link-grow:hover::after { transform: scaleX(1); }
+
+/* Stagger helpers retained for app pages */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.18s; }
+.stagger-4 { animation-delay: 0.26s; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}

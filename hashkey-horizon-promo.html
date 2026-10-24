@@ -1,0 +1,440 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>HashKey Chain Horizon</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a letterboxed 16:9 cinematic stage that auto-plays timed motion-graphics
+     scenes over an ambient on-chain "agent network" canvas; controls sit below. */
+  :root{
+    --bg:#04060c;            /* page ground */
+    --stage-0:#0b1324;       /* stage gradient top */
+    --stage-1:#060a14;       /* stage gradient bottom */
+    --ink:#eaf1ff;           /* primary text */
+    --muted:#90a4c6;         /* secondary text */
+    --faint:#5a6d90;         /* tertiary / captions */
+    --cyan:#3ae6dd;          /* primary accent (HashKey teal) */
+    --cyan-deep:#15a7b4;
+    --gold:#ffc24b;          /* money / highlight accent */
+    --line:rgba(120,160,210,.16);
+    --panel:#0c1526;
+    --stroke:rgba(140,180,230,.14);
+    color-scheme:dark;
+    --disp:"Sora",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #0a1427 0%, transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--disp);
+    min-height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:18px;
+    padding-block:24px;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .shell{width:100%;max-width:1120px;display:flex;flex-direction:column;gap:14px}
+
+  .topline{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);
+  }
+  .topline .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);display:inline-block;margin-right:8px;vertical-align:middle}
+  .topline b{color:var(--muted);font-weight:500}
+
+  /* ---- stage ---- */
+  .stage{
+    position:relative;width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;
+    background:linear-gradient(170deg,var(--stage-0),var(--stage-1));
+    box-shadow:0 30px 80px -30px rgba(0,0,0,.8), inset 0 0 0 1px var(--stroke);
+    container-type:size;
+    isolation:isolate;
+  }
+  #bg{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(130% 110% at 50% 40%, transparent 55%, rgba(2,4,9,.72) 100%)}
+  .grain{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  .scene{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
+    justify-content:center;padding:7.5cqw 8cqw;opacity:0;visibility:hidden}
+  .scene.on{opacity:1;visibility:visible}
+
+  .eyebrow{font-family:var(--mono);font-size:2.3cqw;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--cyan);display:flex;align-items:center;gap:1.4cqw}
+  .eyebrow .bar{width:5.5cqw;height:2px;background:linear-gradient(90deg,var(--cyan),transparent)}
+
+  h1{font-size:9.4cqw;line-height:.96;font-weight:700;letter-spacing:-.02em;margin:3cqw 0 0;
+    text-wrap:balance}
+  h1 .accent{background:linear-gradient(90deg,var(--cyan),#9ff5ef);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:3.5cqw;color:var(--muted);max-width:62cqw;line-height:1.3;margin-top:2.6cqw;font-weight:400}
+  .lede b{color:var(--ink);font-weight:600}
+
+  .meta-row{display:flex;gap:2.2cqw;flex-wrap:wrap;margin-top:4cqw}
+  .chip{font-family:var(--mono);font-size:2.2cqw;letter-spacing:.06em;color:var(--ink);
+    border:1px solid var(--stroke);border-radius:999px;padding:1.2cqw 2.4cqw;background:rgba(10,18,34,.5)}
+  .chip .k{color:var(--faint)}
+
+  /* big headline number (prize) */
+  .bignum{font-size:16cqw;line-height:.9;font-weight:700;letter-spacing:-.03em;
+    color:var(--gold);text-shadow:0 0 40px rgba(255,194,75,.25)}
+  .bignum small{font-size:4.2cqw;color:var(--muted);font-weight:500;letter-spacing:0}
+
+  /* track cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:2.6cqw;margin-top:4.5cqw}
+  .card{border:1px solid var(--stroke);border-radius:2.2cqw;padding:3.4cqw 3.4cqw;
+    background:linear-gradient(180deg,rgba(14,24,44,.75),rgba(8,14,26,.6));position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+    background:linear-gradient(var(--cyan),var(--cyan-deep))}
+  .card.c2::before{background:linear-gradient(var(--gold),#d98a1e)}
+  .card .no{font-family:var(--mono);font-size:2.4cqw;color:var(--faint);letter-spacing:.1em}
+  .card h3{font-size:4cqw;margin:1.4cqw 0 1.4cqw;line-height:1.05;font-weight:600}
+  .card p{font-size:2.5cqw;color:var(--muted);line-height:1.3;margin:0}
+
+  /* timeline rows (dates) */
+  .rows{display:flex;flex-direction:column;gap:2.3cqw;margin-top:4cqw}
+  .rw{display:flex;align-items:baseline;gap:3cqw}
+  .rw .d{font-family:var(--mono);font-size:3cqw;color:var(--cyan);min-width:30cqw;font-variant-numeric:tabular-nums}
+  .rw .l{font-size:3.2cqw;color:var(--ink)}
+  .rw.hot .d{color:var(--gold)}
+  .rw.hot .l{font-weight:600}
+
+  /* attendee list */
+  .who{display:grid;grid-template-columns:1fr 1fr;gap:2cqw 4cqw;margin-top:4cqw}
+  .who div{font-size:2.9cqw;color:var(--muted);display:flex;gap:1.6cqw;line-height:1.25}
+  .who div::before{content:"";width:1.6cqw;height:1.6cqw;margin-top:1cqw;flex:none;border-radius:3px;
+    background:var(--cyan);box-shadow:0 0 10px rgba(58,230,221,.5)}
+
+  .cta-btn{display:inline-flex;align-items:center;gap:2cqw;align-self:flex-start;margin-top:4cqw;
+    font-family:var(--mono);font-size:3cqw;letter-spacing:.1em;text-transform:uppercase;
+    color:#04121a;font-weight:600;background:linear-gradient(90deg,var(--cyan),#8ff2ea);
+    padding:2.2cqw 4cqw;border-radius:999px;box-shadow:0 0 36px rgba(58,230,221,.35)}
+  .cta-url{font-family:var(--mono);font-size:2.4cqw;color:var(--faint);margin-top:2.6cqw;letter-spacing:.04em}
+
+  .hosts{font-family:var(--mono);font-size:2cqw;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--faint);margin-top:4.5cqw}
+  .hosts b{color:var(--muted);font-weight:500}
+
+  /* progress bar inside stage */
+  .progress{position:absolute;left:0;right:0;bottom:0;height:5px;z-index:5;background:rgba(255,255,255,.07);display:flex;gap:3px;padding:0 0}
+  .seg{flex:1;height:100%;background:transparent;position:relative;overflow:hidden}
+  .seg i{position:absolute;inset:0;transform-origin:left;transform:scaleX(0);
+    background:linear-gradient(90deg,var(--cyan),#9ff5ef)}
+  .seg.done i{transform:scaleX(1)}
+
+  /* ---- controls ---- */
+  .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  button.ctl{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    background:var(--panel);color:var(--ink);border:1px solid var(--stroke);border-radius:10px;
+    padding:9px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+  button.ctl:hover{border-color:var(--cyan);color:var(--cyan)}
+  button.ctl:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  .controls .count{font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.1em;margin-left:auto}
+  .dots{display:flex;gap:7px}
+  .dots b{width:9px;height:9px;border-radius:50%;background:#1b2740;cursor:pointer;border:0;padding:0}
+  .dots b.active{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+
+  .share{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);
+    font-size:12.5px;color:var(--faint);letter-spacing:.03em}
+  .share code{color:var(--muted);user-select:all;background:var(--panel);border:1px solid var(--stroke);
+    padding:5px 9px;border-radius:7px}
+  .share .cp{cursor:pointer;background:none;border:0;color:var(--cyan);font-family:var(--mono);
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+
+  @media (max-width:560px){
+    .controls .count{margin-left:0;width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .scene,.scene *{animation:none!important}
+  }
+</style>
+
+<div class="shell">
+  <div class="topline">
+    <span><span class="dot"></span>HashKey Chain Horizon</span>
+    <b>Mumbai Demo Day · Nov 4, 2026</b>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="bg"></canvas>
+    <div class="vignette"></div>
+
+    <!-- 1 — INTRO -->
+    <div class="scene" data-dur="4600">
+      <div class="eyebrow"><span class="bar"></span>021Lab × HashKey Chain presents</div>
+      <h1>HashKey Chain<br><span class="accent">Horizon</span></h1>
+      <div class="lede">A builder hackathon with one mandate — <b>build new financial infrastructure</b> for the age of autonomous agents.</div>
+      <div class="meta-row">
+        <span class="chip"><span class="k">EDITION /</span> Mumbai</span>
+        <span class="chip"><span class="k">FORMAT /</span> Online build → live Demo Day</span>
+      </div>
+    </div>
+
+    <!-- 2 — PREMISE -->
+    <div class="scene" data-dur="3900">
+      <div class="eyebrow"><span class="bar"></span>The Demo Day</div>
+      <h1><span class="accent">20 teams.</span><br>Real, working code.</h1>
+      <div class="lede">After weeks of online building and evaluation, the finalists take the stage to demo production-ready apps — agentic workflows, stablecoin products and DeFi on HashKey Chain. <b>Execution, not slideware.</b></div>
+    </div>
+
+    <!-- 3 — TRACKS -->
+    <div class="scene" data-dur="4700">
+      <div class="eyebrow"><span class="bar"></span>Two tracks</div>
+      <h1>Where agents<br>meet money</h1>
+      <div class="cards">
+        <div class="card c1">
+          <div class="no">TRACK 01</div>
+          <h3>AI Agent Trading</h3>
+          <p>Autonomous strategies that trade and manage risk on-chain.</p>
+        </div>
+        <div class="card c2">
+          <div class="no">TRACK 02</div>
+          <h3>Agent Payments &amp; A2A Settlement</h3>
+          <p>Machine-to-machine value transfer, built on HSP.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 — PRIZE -->
+    <div class="scene" data-dur="4300">
+      <div class="eyebrow"><span class="bar"></span>Prize pool</div>
+      <div class="bignum">10,000 <small>USDT</small></div>
+      <div class="lede">Split <b>5,000 USDT per track</b> — 2,500 / 1,500 / 1,000 for 1st, 2nd and 3rd. Plus mentorship and ecosystem reach on HashKey Chain.</div>
+    </div>
+
+    <!-- 5 — DATES -->
+    <div class="scene" data-dur="4300">
+      <div class="eyebrow"><span class="bar"></span>Key dates · IST</div>
+      <h1>Mark the<br>calendar</h1>
+      <div class="rows">
+        <div class="rw"><span class="d">Nov 1</span><span class="l">Registration &amp; submission close · 21:30</span></div>
+        <div class="rw"><span class="d">Nov 3</span><span class="l">Finalist pitch teams announced</span></div>
+        <div class="rw hot"><span class="d">Nov 4</span><span class="l">Demo Day — live in Mumbai</span></div>
+        <div class="rw"><span class="d">Nov 5</span><span class="l">Winners announced</span></div>
+      </div>
+    </div>
+
+    <!-- 6 — VENUE / AGENDA -->
+    <div class="scene" data-dur="4000">
+      <div class="eyebrow"><span class="bar"></span>Demo Day · Nov 4 · 9:30 AM</div>
+      <h1>ATLAS SkillTech<br>University</h1>
+      <div class="lede">Equinox Business Park, Kurla West, Mumbai. Keynote, finalist pitches, an AI-agents &amp; on-chain finance panel, awards — then a happy hour for founders, builders and investors.</div>
+      <div class="meta-row">
+        <span class="chip"><span class="k">11:00 /</span> Pitches</span>
+        <span class="chip"><span class="k">16:00 /</span> Panel</span>
+        <span class="chip"><span class="k">17:00 /</span> Awards + networking</span>
+      </div>
+    </div>
+
+    <!-- 7 — WHO -->
+    <div class="scene" data-dur="3900">
+      <div class="eyebrow"><span class="bar"></span>Who should be in the room</div>
+      <h1>Come build the<br>agent economy</h1>
+      <div class="who">
+        <div>Builders in AI, autonomous agents &amp; Web3</div>
+        <div>Founders in payments &amp; fintech</div>
+        <div>Investors scouting early HashKey projects</div>
+        <div>Students into on-chain finance</div>
+      </div>
+    </div>
+
+    <!-- 8 — CTA -->
+    <div class="scene" data-dur="4600">
+      <div class="eyebrow"><span class="bar"></span>Capacity is limited · approval required</div>
+      <h1>Request to <span class="accent">join.</span></h1>
+      <div class="cta-url">luma.com/hashkey-demo-day-mumbai</div>
+      <div class="hosts"><b>Hosts</b> &nbsp;021Lab · HashKey Chain · Luvon Labs · Apna Coding</div>
+    </div>
+
+    <div class="grain"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+
+  <div class="controls">
+    <button class="ctl" id="playpause" aria-label="Pause"><span id="ppicon">❚❚</span> <span id="pptext">Pause</span></button>
+    <button class="ctl" id="replay">↻ Replay</button>
+    <div class="dots" id="dots" role="tablist" aria-label="Scenes"></div>
+    <div class="count" id="count">01 / 08</div>
+  </div>
+
+  <div class="share">
+    <span>Share:</span>
+    <code id="url">https://luma.com/hashkey-demo-day-mumbai</code>
+    <button class="cp" id="copy">Copy link</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- ambient on-chain network canvas ---------- */
+  var cv = document.getElementById("bg"), ctx = cv.getContext("2d");
+  var stage = document.getElementById("stage");
+  var nodes = [], W=0, H=0, dpr=Math.min(window.devicePixelRatio||1,2);
+  function resize(){
+    var r = stage.getBoundingClientRect();
+    W=r.width; H=r.height;
+    cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    var target = Math.round(Math.min(64, Math.max(26, W/18)));
+    nodes = [];
+    for(var i=0;i<target;i++){
+      nodes.push({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*0.25, vy:(Math.random()-.5)*0.25,
+        r:Math.random()*1.6+0.8,
+        gold: Math.random()<0.14
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    var link = Math.min(170, W/6);
+    for(var i=0;i<nodes.length;i++){
+      var a=nodes[i];
+      for(var j=i+1;j<nodes.length;j++){
+        var b=nodes[j], dx=a.x-b.x, dy=a.y-b.y, d=Math.sqrt(dx*dx+dy*dy);
+        if(d<link){
+          var o=(1-d/link)*0.33;
+          ctx.strokeStyle="rgba(90,170,200,"+o+")";
+          ctx.lineWidth=0.6;
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        }
+      }
+    }
+    for(var k=0;k<nodes.length;k++){
+      var n=nodes[k];
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,6.2832);
+      ctx.fillStyle=n.gold?"rgba(255,194,75,.9)":"rgba(120,235,225,.85)";
+      ctx.shadowBlur=8;ctx.shadowColor=n.gold?"rgba(255,194,75,.6)":"rgba(58,230,221,.6)";
+      ctx.fill();ctx.shadowBlur=0;
+      if(!reduce){
+        n.x+=n.vx;n.y+=n.vy;
+        if(n.x<0||n.x>W)n.vx*=-1;
+        if(n.y<0||n.y>H)n.vy*=-1;
+      }
+    }
+    if(!reduce) raf=requestAnimationFrame(draw);
+  }
+  var raf;
+  function startCanvas(){ cancelAnimationFrame(raf); draw(); }
+
+  /* ---------- scene player ---------- */
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var N = scenes.length;
+  var durs = scenes.map(function(s){ return parseInt(s.getAttribute("data-dur"),10)||4000; });
+  var progress = document.getElementById("progress");
+  var dotsWrap = document.getElementById("dots");
+  var segs = [], dots = [];
+  scenes.forEach(function(_,i){
+    var seg=document.createElement("div"); seg.className="seg";
+    var fill=document.createElement("i"); seg.appendChild(fill); progress.appendChild(seg); segs.push(seg);
+    var d=document.createElement("button"); d.className="dots-dot"; d.setAttribute("role","tab");
+    d.setAttribute("aria-label","Scene "+(i+1));
+    d.addEventListener("click",function(){ go(i); });
+    dotsWrap.appendChild(d); dots.push(d);
+  });
+  // style dots via class on wrapper children
+  dots.forEach(function(d){ d.className=""; d.style.cssText="width:9px;height:9px;border-radius:50%;background:#1b2740;cursor:pointer;border:0;padding:0"; });
+
+  var cur=-1, timer=null, t0=0, elapsed=0, playing=true;
+  var count=document.getElementById("count");
+
+  function pad(n){ return (n<10?"0":"")+n; }
+  function paintSegs(){
+    segs.forEach(function(s,i){
+      var fill=s.firstChild;
+      if(i<cur){ fill.style.transition="none"; fill.style.transform="scaleX(1)"; }
+      else if(i>cur){ fill.style.transition="none"; fill.style.transform="scaleX(0)"; }
+    });
+  }
+  function runFill(){
+    var fill=segs[cur].firstChild;
+    fill.style.transition="none"; fill.style.transform="scaleX("+(elapsed/durs[cur])+")";
+    // force reflow then animate remaining
+    void fill.offsetWidth;
+    if(playing && !reduce){
+      fill.style.transition="transform "+(durs[cur]-elapsed)+"ms linear";
+      fill.style.transform="scaleX(1)";
+    } else if(playing && reduce){
+      fill.style.transition="transform "+(durs[cur]-elapsed)+"ms linear";
+      fill.style.transform="scaleX(1)";
+    }
+  }
+  function show(i){
+    scenes.forEach(function(s,k){ s.classList.toggle("on", k===i);
+      if(k===i){ // restart entrance animations
+        s.querySelectorAll(".anim").forEach(function(el){ el.style.animation="none"; void el.offsetWidth; el.style.animation=""; });
+      }
+    });
+    dots.forEach(function(d,k){ d.style.background = k===i ? "#3ae6dd":"#1b2740"; d.style.boxShadow = k===i?"0 0 10px #3ae6dd":"none"; d.setAttribute("aria-selected", k===i); });
+    count.textContent = pad(i+1)+" / "+pad(N);
+  }
+  function schedule(){
+    clearTimeout(timer);
+    if(!playing) return;
+    var remain = durs[cur]-elapsed;
+    t0 = performance.now();
+    timer = setTimeout(function(){ elapsed=0; next(); }, remain);
+  }
+  function go(i){
+    cur = (i+N)%N; elapsed=0;
+    show(cur); paintSegs(); runFill(); schedule();
+  }
+  function next(){ go(cur+1); }
+
+  function pause(){
+    if(!playing) return;
+    playing=false;
+    clearTimeout(timer);
+    elapsed += performance.now()-t0;
+    var fill=segs[cur].firstChild;
+    var r=fill.getBoundingClientRect(), parent=segs[cur].getBoundingClientRect();
+    fill.style.transition="none";
+    fill.style.transform="scaleX("+Math.min(1,(parent.width?r.width/parent.width:0))+")";
+    setPP();
+  }
+  function play(){
+    if(playing) return;
+    playing=true; runFill(); schedule(); setPP();
+  }
+  function setPP(){
+    document.getElementById("ppicon").textContent = playing?"❚❚":"►";
+    document.getElementById("pptext").textContent = playing?"Pause":"Play";
+    document.getElementById("playpause").setAttribute("aria-label", playing?"Pause":"Play");
+  }
+
+  document.getElementById("playpause").addEventListener("click",function(){ playing?pause():play(); });
+  document.getElementById("replay").addEventListener("click",function(){ playing=true; setPP(); go(0); });
+
+  // copy link
+  document.getElementById("copy").addEventListener("click",function(){
+    var txt=document.getElementById("url").textContent, btn=this;
+    function done(){ btn.textContent="Copied ✓"; setTimeout(function(){ btn.textContent="Copy link"; },1600); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done).catch(function(){ sel(); });
+    } else sel();
+    function sel(){ try{ var r=document.createRange(); r.selectNode(document.getElementById("url"));
+      var s=getSelection(); s.removeAllRanges(); s.addRange(r); done(); }catch(e){} }
+  });
+
+  // boot
+  function boot(){ resize(); startCanvas(); go(0); setPP(); }
+  var rt;
+  window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ resize(); if(!reduce) startCanvas(); },180); });
+
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(boot); setTimeout(boot,400); }
+  else boot();
+  // guard against double-boot
+  var booted=false; var realBoot=boot; boot=function(){ if(booted)return; booted=true; realBoot(); };
+})();
+</script>

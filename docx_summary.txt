@@ -1,0 +1,1061 @@
+
+FIND MY HOMIE
+India Product Handbook
+The idea · User experience · AI conversation · Matching science · Housing journey · Build plan
+
+Document
+Details
+Version
+1.0 — founder reference and build guide
+Date
+13 October 2026
+Launch market
+Bengaluru, India
+Audience
+Founder, product/design, engineering (including Shriyash), pilot partners
+Tagline
+Find your person, then your place.
+Working principle
+Make shared living easier to navigate, not just easier to search.
+
+Naming note: this document uses Find My Homie (FMH), the established product name in the project context. If “Firebrobe” is intended to be a distinct name rather than voice transcription, update the brand name before circulation.
+This is a working handbook, not legal advice or a claim that the matching model is scientifically validated. Product hypotheses must be tested with real Bengaluru users and updated from evidence.
+
+Contents and how to use this handbook
+Part I — Why FMH exists and what it is trying to change.
+Part II — Who the product serves and the complete user journey.
+Part III — Conversational Homie: multilingual text, voice, structured extraction and example WhatsApp-style dialogues.
+Part IV — The quiz: exact question bank, household-specific questions and adaptive follow-ups.
+Part V — Matching: constraints, scoring mathematics, calibration, uncertainty and fairness.
+Part VI — Connections, viewing coordination, applications, costs, deposits and move-in.
+Part VII — Listings, host incentives, verification, parents/supporters, safety and privacy.
+Part VIII — UX and UI screen map, data architecture, engineering plan and cost controls.
+Part IX — Measurement, pilot experiments, monetisation, funding opportunities and execution checklist.
+Read it in order for the product story. Engineers can jump to Parts III–VIII. For decisions, use the labels: DECISION (recommended default), HYPOTHESIS (needs validation), and OPEN QUESTION (must be resolved).
+PART I — THE IDEA
+1. The core idea
+Find My Homie is a compatibility-first shared-living platform. It helps people find a room, find people to rent with, or fill a spare room by combining practical housing constraints with the things that make day-to-day living work: routines, cleanliness, guests, food, boundaries, money, culture and communication.
+The core promise remains: “Find your person, then your place.” FMH should not stop at a match score. It should help people progress from intent to a relevant shortlist, a mutually accepted connection, a viewing, clear terms and—if all goes well—a move-in.
+1.1 The problem
+Property portals help people find rooms but usually do little to explain whether the people sharing the home are compatible.
+Social groups can have useful supply but are noisy, difficult to search, vulnerable to stale posts and dependent on repeated direct messages.
+Renters may not know which questions to ask before viewing or paying a deposit.
+Hosts and current tenants repeat the same details to every enquiry, juggle viewing times and struggle to compare applicants fairly.
+The lived experience of sharing a home depends on ordinary details that listings often omit: guests, cooking, cleaning, quiet hours, prayer, privacy, shared expenses and boundaries.
+In India, food practices, vegetarian/non-vegetarian cooking, religion-related routines, family involvement and different household expectations can materially affect whether a home is a fit.
+Language is not a reliable proxy for intent: people mix Kannada, Hindi, English and other languages, use slang and voice notes, and change their minds mid-conversation.
+1.2 What FMH is—and is not
+FMH is
+FMH is not
+A compatibility and trust layer for shared living.
+Just a quiz with a percentage score.
+A structured profile that can be updated through different interfaces.
+A WhatsApp transcript that becomes the database.
+A listing and coordination workflow for rooms, people and households.
+A portal that promises every listing is live without a refresh mechanism.
+A way to make preferences and differences discussable.
+A guarantee that two people will get along.
+A product that supports safer decisions and clear information.
+A guarantee that a person, property or transaction is safe.
+A Bengaluru-first product that can later expand city by city.
+A product that launches everywhere before one market has enough supply.
+
+1.3 Why launch in Bengaluru
+Bengaluru is the initial market hypothesis because it has a substantial population of working professionals, people relocating for jobs, shared accommodation demand and a culture of using digital services. This is a strategic hypothesis, not proof of product-market fit. Launch in a focused cluster or two, recruit supply first, and expand locality coverage only when there are enough current listings and seekers to produce useful results.
+1.4 Product principles
+People first, property second—but do not force everyone into a buddy-up journey. Someone who needs a room urgently should be able to search rooms immediately.
+One user, one canonical profile, multiple interfaces.
+Ask only what is needed at that point in the journey.
+Separate practical feasibility from lifestyle compatibility.
+Treat food and household practices as real compatibility factors, not afterthoughts.
+Explain recommendations in plain language and show meaningful differences.
+Make uncertainty visible. Never invent certainty from incomplete answers.
+Privacy by default; users choose what is published and shared.
+Hosts need value too: fewer irrelevant enquiries, easier scheduling, clearer costs and faster vacancy filling.
+Measure housing outcomes, not just quiz completion or time spent chatting.
+Start with rules and human-reviewable processes; add complexity only when data justifies it.
+PART II — USERS AND END-TO-END JOURNEY
+2. User types and jobs to be done
+User
+What they need
+FMH's value
+Room seeker
+Find a suitable room within budget, area and timing.
+Relevant rooms, clear total costs, household-fit information, viewing coordination.
+Buddy-up seeker
+Find people before choosing a property.
+Compatible people, group formation, shared budget/area planning and saved listings.
+Host/current tenant
+Fill a room without endless back-and-forth.
+Short listing flow, a small household-fit profile, viewing slots, applicant triage and stale-listing reminders.
+Owner/authorised agent
+Get qualified enquiries and coordinate viewings.
+Structured listing, availability management and clearer lead details.
+Parent/trusted supporter
+Help assess options, especially during relocation or a first move.
+Consent-controlled sharing of selected listing details and viewing plans.
+Broker/property manager
+Manage legitimate inventory and enquiries.
+Potential later partner dashboard and authorised inventory feed.
+Moderator
+Handle scams, stale inventory, abuse and safety reports.
+Review queue, evidence, status controls, audit log and escalation workflow.
+
+2.1 The three primary intents
+Intent
+Default path
+Can switch to
+I need a room
+Set budget/area/date → quick lifestyle profile → discover rooms/households → request viewing.
+People-first discovery.
+I want to find people first
+Set constraints → lifestyle profile → discover people → mutual interest → group plan → room search.
+Room-first discovery.
+I have a room to fill
+Create listing → household fit questions → availability/calendar → review requests → viewings → mark filled.
+Seeker journey if the host also needs a room.
+
+2.2 End-to-end lifecycle
+Awareness: user arrives from a referral, social post, community, search or listing share.
+Intent: user chooses room seeker, buddy-up seeker, host or more than one.
+Capture: Homie gathers minimum viable housing requirements in a conversational or structured flow.
+Profile: lifestyle questions are asked progressively; answers can be skipped or corrected where appropriate.
+Review: user checks the extracted facts and decides what is private versus public.
+Trust: phone/email and social-link checks are completed; verification labels are explained accurately.
+Discovery: the system applies feasibility filters, then ranks eligible profiles/listings with explainable compatibility.
+Interest: user sends a structured connection or viewing request; the recipient controls acceptance.
+Conversation: users exchange information through an approved, consent-based channel or arrange a viewing.
+Viewing: host's available slots prevent back-and-forth; reminders and rescheduling are supported.
+Terms: rent, maintenance, deposit, brokerage, duration, house rules and agreement/receipt availability are reviewed.
+Decision: user records interested/not interested; host can accept another applicant or pause the listing.
+Outcome: viewing attended, application, move-in, listing filled, or reason lost (optional).
+Learning: aggregate outcomes and corrections improve the question wording, matching weights and listing operations.
+2.3 Important branch: urgent room search
+Do not make a user finish every personality question before seeing rooms. Capture city/area, budget, move-in date and room type first; allow an initial shortlist with a clearly labelled low-confidence fit. Encourage completion of lifestyle and household preferences before contacting a host. This preserves usefulness for urgent renters without pretending that a partial profile is complete.
+PART III — HOMIE: THE CONVERSATIONAL EXPERIENCE
+3. Homie is an interface, not the source of truth
+Homie is the conversational assistant that can live on the website and, later, in messaging channels where terms and technical access permit. The profile, listings, quiz responses, verification states, connections and viewing requests live in the FMH backend. Every channel must use the same APIs and permissions.
+Component
+Job
+Channel adapter
+Receive/send messages or audio from web chat or an approved messaging channel; map channel-specific events into a common format.
+Language and media layer
+Detect language, handle code-switching, transcribe audio where supported, preserve the original input reference.
+Conversation orchestrator
+Identify user intent, current onboarding step, missing fields, ambiguity and next best question.
+Structured extraction
+Produce schema-validated candidate facts such as budget, areas, dates, food practices and house rules.
+Validation and confirmation
+Check ranges, resolve contradictions, request explicit confirmation for sensitive/high-impact fields.
+Profile/listing API
+Persist confirmed fields with provenance, source channel, timestamp and consent state.
+Matching API
+Calculate feasibility, score, uncertainty and grounded explanation from structured data—not free-form chat.
+Web UI
+Let users inspect/edit the canonical profile, listing, match details and visibility.
+
+3.1 What “understanding natural language” means
+Homie must interpret the user's meaning, not simply match keywords. “I’m vegetarian but don’t care if flatmates eat meat outside” is different from “I’m okay with meat being cooked in the shared kitchen.” “Guests are fine, just no random people sleeping over” is different from “I want a social house.” The system must preserve negation, exceptions, conditions and who a preference applies to.
+3.2 Canonical field record
+Field
+Example
+field_key
+budget.max_monthly_total
+value
+18000
+currency
+INR
+source_channel
+web_chat / WhatsApp / manual_form
+source_message_reference
+message ID or secure reference, not necessarily raw transcript forever
+confidence
+0.94
+confirmation_status
+proposed / confirmed / rejected / needs_clarification
+updated_at
+timestamp
+schema_version
+profile-v1.2
+consent_scope
+private profile / discoverable / shared with named user
+
+3.3 Extraction rules
+Use a strict schema and validate all model outputs before any write.
+Do not allow a language model to execute arbitrary database writes. It proposes structured updates; backend rules authorise them.
+High-confidence, low-impact preferences may be summarised for confirmation in a batch. Budget ceiling, move-in date, public visibility, social sharing and money terms require clear confirmation.
+If a user corrects a fact, update the draft and show the changed field. Keep reversible history.
+If the referent is unclear (“make it 20”), ask whether the user means budget, date or something else.
+If a value is missing, keep it unknown; do not fill it with a plausible guess.
+Don't infer religion, caste, dietary practice, gender, relationship status, income or safety from name, photo, accent, language or social account.
+Let users edit every extracted field directly in the website.
+Store enough provenance to debug mistakes; minimise retention of raw chat and audio.
+3.4 Language and voice strategy
+Capability
+V1 expectation
+Fallback / testing
+English
+Supported for onboarding, profile updates, FAQs and matching explanations.
+Test casual and formal language.
+Hindi and Hinglish
+Support code-switching, transliteration and common short forms.
+Test Devanagari and Latin-script inputs.
+Kannada and Kannada-English
+Pilot support for common housing and household vocabulary.
+Recruit native speakers to review accuracy; don't claim full coverage before testing.
+Other Indian languages
+Design language-agnostic architecture; support where model quality and test coverage justify it.
+If confidence is low, ask user to select a language or use a structured form.
+Voice notes
+Optional audio input where channel permits; transcribe, detect language, extract fields, show summary for correction.
+Limit file size/duration; offer text input; don't retain raw audio by default.
+Images/screenshots
+Later/optional: extract details from a listing screenshot for user confirmation.
+Do not republish images or listing content without permission.
+Text-to-speech
+Not needed for V1 unless user research shows accessibility or language need.
+Keep architecture open; avoid added latency/cost initially.
+
+3.5 WhatsApp-specific caution
+WhatsApp Business Solution Terms published in 2026 restrict AI providers from using the Business Solution when AI is the primary functionality, subject to specific exceptions; WhatsApp also has a separate third-party-agent experience whose availability varies by country and whose chats with agents are not end-to-end encrypted in the same way as personal chats. This makes WhatsApp a channel to validate, not an assumption the architecture can depend on. Review the exact terms and available products with counsel/Meta before launch.
+Build the website chat and shared backend first. Keep the messaging adapter replaceable. If WhatsApp is approved for the intended use, explain the data handling and encryption limitations before a user connects it. Do not use unofficial automation that risks account suspension.
+3.6 Example conversational scripts
+A. Seeker starts in casual English
+User: “hey need a room around indiranagar, 15-18k max, moving next month. wfh 3 days. no party house pls but friends can come over lol”
+Homie: “Got you. I’ve picked up Indiranagar, ₹15–18k and WFH three days a week. When you say ₹18k max, should I include maintenance and utilities in that limit? And what date are you hoping to move?”
+User: “yeah total ideally. anytime after 1 nov”
+Homie: “Done — total monthly budget around ₹18k, move-in from 1 November. I’ll look for quieter households where occasional guests are okay. Quick one: are you looking for a private room or would a shared room work too?”
+B. Food boundaries
+User: “im veg. dont want meat cooked at home but idc if others eat it outside”
+Homie: “Understood: vegetarian preference, and your key household requirement is no meat cooked in the shared home. Is that a non-negotiable for you, or would separate cooking arrangements work?”
+Why this works: the assistant captures the practical rule and asks whether it is strict. It does not assume the user's religion or judge anyone else's identity.
+C. Voice note in a mixed language
+User sends a Kannada-English voice note about budget, area and move-in date.
+Homie: “I heard: near Whitefield, around ₹20k total, moving in mid-November. Did I get that right? You can edit any of these.”
+The production version should respond in the user's selected language where quality is adequate. For a voice note, the UI should show a transcript and a correction action; if the transcript confidence is low, ask rather than persist uncertain fields.
+D. Host creates a listing
+Homie: “Let's get the room listed first. Which area, monthly rent, deposit, maintenance, move-in date and room type?”
+After listing details: “What is your household like? I’ll ask a few quick questions so applicants know what living there is like.”
+Host answers short questions about guests, cooking rules, quiet hours, cleaning and viewing availability. Homie then previews the listing and asks for explicit confirmation before publishing.
+E. Correcting an earlier answer
+User: “actually not indiranagar, closer to domlur. and 18k is just rent, maintenance can be extra”
+Homie: “Updated the area to Domlur/nearby. I’ve changed your rent ceiling to ₹18k before maintenance, so the total monthly cost may be higher. Want me to cap total monthly spend separately?”
+3.7 Conversation states
+State
+System behaviour
+New / anonymous
+Explain value, collect intent; don't publish profile.
+Account linked
+Create or resume canonical profile.
+Essentials in progress
+Ask only for missing housing fields.
+Quiz in progress
+Ask next unanswered relevant question; allow back/edit.
+Review required
+Show extracted facts and confidence/unknowns.
+Verification pending
+Explain what is required and alternatives.
+Ready to publish
+Ask for explicit visibility consent.
+Published
+Allow discovery and connection workflows under privacy rules.
+Paused / unpublish
+Remove from discovery without deleting account.
+Deletion requested
+Run deletion workflow and explain any lawful retention exceptions.
+
+PART IV — THE QUIZ AND HOUSEHOLD PROFILE
+4. Quiz philosophy
+The quiz should feel like a conversation about living together, not a personality test from a magazine. Ask one question at a time, use everyday language, explain why a question matters where helpful, allow “it depends” or “not sure”, and ask adaptive follow-ups only where they meaningfully improve the match.
+Target 15 core lifestyle questions plus no more than 5 adaptive follow-ups; housing essentials are separate fields. A user who urgently needs a room can see initial results after essential constraints and complete more questions before contacting a host. Hosts answer a short 5–7-question household-fit set because their listing already contains substantial information.
+4.1 Housing essentials (not lifestyle score)
+Field
+Question / data
+Rules
+Intent
+Room / buddy-up / host / multiple.
+Can be changed later.
+Areas
+Which areas work? Nearby landmarks/metro/commute constraints.
+Allow multiple areas, radius/nearby preference and flexibility.
+Budget
+Rent min/max and total monthly max.
+Explicitly distinguish rent-only from total including maintenance/utilities.
+Move-in
+Exact date, date range or flexible window.
+Store date certainty and flexibility.
+Duration
+Short-term / 6 months / 12 months / flexible / other.
+Do not infer lease term.
+Room type
+Private/shared, furnished/unfurnished, bathroom preferences.
+Use as filters only if user marks as must-have.
+Occupancy
+Expected number of residents/occupants.
+Only ask what is needed for listing eligibility.
+Commute
+Work/study location or maximum commute (optional).
+Avoid exact workplace disclosure in public profile.
+Total costs
+Maintenance, utilities, internet and other recurring charges.
+Show unknown cost fields explicitly.
+
+4.2 Core lifestyle quiz — exact question bank
+ID / dimension
+Question
+Answer options
+Q1 — Cleanliness
+How do you like shared spaces to be kept?
+A: Reset after each use; B: Clean daily, temporary mess is okay; C: Weekly reset; D: Relaxed as long as it's hygienic.
+Q2 — Dishes
+What feels reasonable for dishes after cooking?
+A: Straight away; B: Before bed; C: Next morning; D: Agree a house rule together.
+Q3 — Quiet hours
+What quiet time feels right on weeknights?
+A: Around 9:30 pm; B: Around 10:30 pm; C: Around midnight; D: No fixed quiet time.
+Q4 — Sleep routine
+Which best describes your usual routine?
+A: Early sleeper/riser; B: Regular daytime routine; C: Late sleeper/riser; D: Changes with work/shift.
+Q5 — WFH
+How often do you work or study from home?
+A: Almost every day; B: A few days a week; C: Occasionally; D: Rarely/never.
+Q6 — Guests
+How often do you like having friends over?
+A: Rarely; B: Sometimes, with notice; C: A few times a week; D: I like a social house.
+Q7 — Overnight guests
+How do you feel about overnight guests?
+A: Prefer none; B: Occasional by agreement; C: Fine with notice; D: Flexible if boundaries are clear.
+Q8 — Home vibe
+What should home feel like?
+A: Quiet and independent; B: Friendly, occasional shared time; C: Regular meals/activities; D: Lively and social.
+Q9 — Cooking
+How often do you cook at home?
+A: Most days; B: A few times a week; C: Occasionally; D: Almost never.
+Q10 — Shared kitchen
+How should kitchen items and food be shared?
+A: Keep personal items separate; B: Shared kitchen, ask before using; C: Share some things by agreement; D: Communal/shared food.
+Q11 — Chores
+How should chores be handled?
+A: Clear rota; B: Split tasks and check in; C: Everyone contributes when they notice; D: Flexible agreed approach, potentially including paid help.
+Q12 — Shared expenses
+How should shared expenses work?
+A: Track each expense; B: Fixed bills and monthly settlement; C: Take turns and reconcile periodically; D: Keep finances separate where possible.
+Q13 — Privacy
+How important is personal space?
+A: Always knock and ask; B: Respect private space/belongings; C: Comfortable sharing some things but ask; D: Relaxed with agreed rules.
+Q14 — Conflict
+How do you prefer to handle conflict?
+A: Talk directly as soon as possible; B: Find a calm agreed time; C: Reflect first, then discuss; D: Use a household check-in for recurring issues.
+Q15 — Shared time
+How much time do you want to spend with flatmates?
+A: Mostly independent; B: Occasional shared time, no pressure; C: Regular meals/activities; D: Close-knit household.
+
+4.3 India-specific food and household practices
+These questions are essential additions. They should distinguish personal diet from rules for a shared home. Do not infer dietary preference from religion, name, region or family background.
+ID / dimension
+Question
+Answer options
+F1 — Diet
+Which best describes your food preferences?
+Vegetarian; vegetarian but eggs okay; eggs okay but no meat; non-vegetarian; vegan; Jain dietary practice; other; prefer not to say.
+F2 — Cooking boundary
+What food can be prepared in your home?
+Anything; no meat cooked; no eggs cooked; no non-vegetarian food brought into the home; specific practices—please explain; other.
+F3 — Shared kitchen
+What arrangement would work for different food preferences?
+Separate utensils/storage; shared kitchen with clear cleaning; dedicated cookware/areas; no special arrangement needed; discuss with household.
+F4 — Personal vs household rule
+Is your preference a personal choice or a household requirement?
+Personal preference; strong preference; non-negotiable house rule; flexible with agreed arrangements.
+F5 — Religious/cultural practice
+Are there any practices or routines that affect shared spaces or household schedules?
+Optional free text; examples may include prayer space, fasting, festival routines, food preparation or visitor arrangements.
+F6 — Alcohol
+What is your preference around alcohol in the home?
+No alcohol in home; okay outside but not at home; occasional use okay; okay with agreed boundaries; no preference.
+F7 — Smoking/vaping
+What is your preference?
+No smoking/vaping indoors; outdoors only; okay in designated area; not comfortable in the home; no preference.
+F8 — Family visits
+What expectations should flatmates know about family visits?
+Rare/occasional; planned visits; overnight visits may happen; frequent family visits; discuss case-by-case.
+F9 — Guests/partners
+Any specific expectations around partners or overnight visitors?
+No overnight visitors; advance notice; agreed frequency; flexible; explain other requirement.
+F10 — Domestic help
+What arrangement do you expect for cooking/cleaning help?
+No domestic help; shared cook/cleaner; individual arrangements; cost split by agreement; flexible.
+F11 — Pets
+Any pet needs or constraints?
+Have a pet; comfortable with pets; allergy/avoid; only certain animals; no preference.
+F12 — Other dealbreakers
+Anything else that would make shared living unworkable for you?
+Optional free text; ask user to mark as must-have, strong preference or flexible.
+
+Religion itself should not be mandatory. If user research shows a clear user benefit, a self-declared religion/belief field may be offered as optional and private. The matching engine should use practical household requirements and user-stated preferences rather than treating religious identity as an automatic compatibility rule. Do not infer protected or sensitive attributes.
+4.4 Host household-fit quiz (short version)
+Question
+Options / expected output
+What is the vibe of the current household?
+Quiet/independent; friendly but independent; regularly social; lively/social.
+What are the non-negotiable house rules?
+Select from guests, quiet hours, cooking/food, smoking, pets, cleaning, privacy; free-text addendum.
+What food practices should applicants know about?
+Household cooking rules and shared-kitchen expectations; avoid identity assumptions.
+What is the typical sleep/work routine?
+Approximate quiet hours and WFH/shift pattern.
+What matters most in a new housemate?
+Choose up to three from reliability, cleanliness, communication, quiet, social fit, shared responsibilities, etc.
+How should chores and shared expenses work?
+Rota/informal split; fixed bills/settlement; separate personal purchases.
+What should someone know before viewing?
+Short household description and viewing preparation.
+
+Host questions should take roughly 2–3 minutes. Hosts can add optional detail later. The listing form already asks for the rent, deposit, room, dates and amenities, so do not ask those again in the quiz.
+4.5 Adaptive follow-ups
+Trigger
+Follow-up example
+Why
+Cleaning mismatch
+“When you say clean, is the kitchen reset after every meal important, or is same-day cleanup fine?”
+Clarify actual impact.
+Sleep/quiet mismatch
+“Would noise after 10:30 pm be a dealbreaker, or can you agree quiet hours?”
+Distinguish flexible from hard constraint.
+Guests mismatch
+“Do guests need advance notice every time? What about overnight stays?”
+Avoid assuming ‘social’ means no boundaries.
+Food mismatch
+“Would separate utensils/storage work, or must certain foods not be cooked in the home?”
+Separate negotiable practice from non-negotiable rule.
+Religious/cultural routine
+“What arrangement would you need in shared spaces? You can keep the details private if you prefer.”
+Capture needs without demanding identity disclosure.
+Chores mismatch
+“Would a rota be required, or is a clear agreement enough?”
+Clarify accountability expectations.
+Budget ambiguity
+“Does your max include maintenance and utilities, or is that rent only?”
+Prevent financially unsuitable matches.
+Move-in ambiguity
+“Is that date fixed, or could you move a week earlier/later?”
+Represent flexibility correctly.
+
+4.6 Quiz UX rules
+One main question per turn; quick replies plus “something else” where needed.
+Progress indicator should show the core quiz and any adaptive follow-ups separately.
+Allow back, edit, pause and resume across channels.
+Offer “not sure” and “prefer not to say” for sensitive or non-essential fields.
+Don't force users to answer religion, identity or other sensitive fields to discover listings.
+Let users mark each preference as must-have, strong preference or flexible when that distinction matters.
+At the end, show a profile summary and ask whether to publish it. Never auto-publish.
+PART V — MATCHING SCIENCE AND BACKEND SCORING
+5. The right mental model
+Matching is not one number. The system must first determine whether a room/household is practically possible, then evaluate lifestyle fit, then explain trade-offs. The first version should be transparent and deterministic. We do not have enough outcome data to claim a validated psychometric instrument or train a reliable personalised ML ranker.
+5.1 Three stages
+Stage
+Logic
+Output
+Stage 1: feasibility
+City/locality overlap, budget and total costs, move-in window, room type, duration, occupancy/household constraints, listing availability, blocked/suspended state.
+Eligible / not eligible / needs clarification.
+Stage 2: compatibility
+Compare lifestyle answers and household rules; apply versioned dimension weights; account for answer coverage and confidence.
+Provisional compatibility score + coverage/confidence.
+Stage 3: ranking and explanation
+Apply freshness, availability, user priorities, response likelihood and diversity of results without hiding hard mismatches.
+Ranked results with 2–3 grounded reasons and any important trade-off.
+
+5.2 Hard constraints versus preferences
+A hard constraint is a user-confirmed non-negotiable. A preference is something that can vary. Never turn every mismatch into a hard exclusion. Conversely, don't average away an explicit constraint such as total budget ceiling or a required household cooking rule.
+Factor
+Possible treatment
+Budget
+Hard filter on total cost when user marks max as firm; otherwise show a stretch result separately.
+Area
+Hard if commute/area is non-negotiable; otherwise distance/area preference score.
+Move-in date
+Hard if exact; overlap score if flexible date window.
+Room type
+Hard if required; preference if shared/private can vary.
+Food/cooking rules
+Hard filter only for explicitly marked non-negotiable household requirements; otherwise show whether an agreed arrangement exists.
+Religion/cultural practice
+Do not use identity as proxy. Compare practical, voluntarily shared household requirements; do not infer.
+Guests/smoking/pets
+Hard filter only where a stated household rule or user boundary requires it.
+Lifestyle answers
+Usually weighted compatibility; explain differences rather than silently exclude.
+Verification
+Eligibility/safety workflow, not a compatibility score.
+Freshness
+Ranking penalty or listing pause; not a personality factor.
+
+5.3 Initial compatibility dimensions and weights
+Dimension
+Weight
+Rationale / caution
+Cleanliness and shared spaces
+16%
+Common source of friction; avoid equating one cleaning style with moral quality.
+Sleep and noise
+12%
+Routine conflict can affect daily life.
+Guests and social boundaries
+10%
+Frequency, notice and overnight expectations.
+Food/kitchen practices
+14%
+Includes cooking, utensils, storage and non-negotiable household rules.
+Chores/responsibilities
+10%
+Agreement and reliability matter.
+Privacy/personal boundaries
+10%
+Room access, belongings and shared space.
+Daily routine/WFH
+8%
+Noise, occupancy and routine overlap.
+Money/shared expenses
+8%
+Different tracking styles can be workable if expectations are clear.
+Alcohol/smoking/pets and other household rules
+6%
+Mostly handled as explicit constraints; weighted only for flexible preferences.
+Communication/conflict approach
+6%
+A hypothesis about how differences are handled.
+
+Weights total 100% for the initial prototype only. These weights are not empirical facts and are not a clinically validated psychometric score. Treat them as configurable hypotheses, document the version, and validate with user interviews and observed outcomes.
+5.4 Dimension scoring
+For an ordinal response on a meaningful 1–5 scale, a simple initial similarity score can be:
+sᵢ = 100 × (1 − |xᵢA − xᵢB| / 4)
+This is only appropriate when equal distance between scale points is defensible. Many answers are categorical or multi-select, so they need dimension-specific compatibility tables—not a generic numeric conversion.
+Example dimension
+Illustrative scoring logic
+Sleep
+Similar sleep/quiet expectations score high; early vs late may be workable if noise expectations align. Do not score only by labels.
+Food rules
+Both allow the same practices = high. One requires no meat cooked at home and the other cooks meat daily = hard conflict if confirmed non-negotiable. Separate utensils may resolve a flexible mismatch.
+Guests
+Compare guest frequency, notice and overnight rules independently. A person who likes guests can still be compatible with someone who needs advance notice.
+Chores
+Rota vs informal style is not automatically incompatible; ask whether both can agree a clear system.
+Expenses
+Different tracking preferences can be compatible if fixed bills, payment dates and settlement process are agreed.
+Religion/culture
+Never score identity. Compare only user-stated household practices/space requirements that are relevant and voluntarily shared.
+
+5.5 Weighted score with missing data
+For comparable dimensions with weights wᵢ and similarity scores sᵢ:
+S = Σ(wᵢ × sᵢ) / Σ(wᵢ for dimensions with comparable data)
+Show data coverage separately:
+Coverage = Σ(weights for comparable answered dimensions) / Σ(all configured weights)
+A profile with a score of 84 and 40% coverage is not equivalent to a score of 84 with 95% coverage. Label it as a provisional fit and avoid a false sense of precision. If coverage is below a configured minimum, show “not enough information yet” or a qualitative fit instead of a percentage.
+5.6 Confidence and uncertainty
+Keep score, coverage and confidence as separate fields.
+Confidence reflects data quality and certainty of answers, not the person's character.
+Unknown answers are not automatically scored as mismatches.
+For high-impact constraints, require explicit confirmation instead of trusting low-confidence extraction.
+If the user gives contradictory answers, resolve them before using the field.
+Avoid displaying decimal precision. A rounded score or qualitative band is more honest.
+Use explanations grounded in the actual fields: “Both prefer quiet weekdays; your guest preferences differ, so discuss notice.”
+5.7 Calibration and validation plan
+Start with expert-designed rules and interview renters/hosts about what really causes household friction.
+Run cognitive interviews: ask users to explain what each question means to them; rewrite ambiguous wording.
+Pilot with a small cohort and compare predicted fit with user-rated relevance, accepted connections, attended viewings and move-in outcomes.
+Collect outcome feedback separately from identity data; do not use a user's religion, caste, name, photo or language as a proxy feature.
+Review false positives (high score but bad fit) and false negatives (low score but successful household) with qualitative notes.
+Tune weights only when there is enough data; version every change and run a holdout comparison where feasible.
+Test score stability: small changes in an answer should not cause dramatic ranking swings unless the answer crosses a genuine hard constraint.
+Audit whether recommendations systematically disadvantage groups; consult legal and domain experts before adding any sensitive fields or filters.
+5.8 Why not use ML immediately?
+A machine-learning ranker needs representative data and meaningful outcomes. Early FMH will have sparse, biased and self-selected data; a model could learn harmful proxies or overfit to early users. Use transparent rules first. Consider learned ranking only after sufficient quality-labeled outcomes, clear evaluation criteria, bias testing and a rollback plan.
+5.9 Example match explanation
+“Potential fit: both prefer a calm home during the week, cook regularly and want clear chore expectations. One difference to discuss: one person is comfortable with guests several times a week, while the other prefers advance notice. Food/kitchen rules need confirmation before this match is marked as suitable.”
+The system must not say “90% compatible means you'll get along” or imply scientific validation that has not happened.
+PART VI — CONNECTIONS AND THE HOUSING TRANSACTION
+6. From match to meaningful connection
+6.1 Connection states
+State
+Behaviour
+Suggested
+A result is eligible and shown with reasons; no contact details revealed.
+Saved
+User bookmarks a profile/listing privately.
+Interest sent
+Sender chooses a short intro prompt and requests connection.
+Pending
+Recipient can accept, decline or ignore; rate limits prevent spam.
+Accepted
+Mutual connection created; in-product communication or next steps become available.
+Viewing requested
+Seeker selects a host slot or proposes times.
+Viewing confirmed
+Both see the time, instructions and cancellation/reschedule options.
+Application / terms
+Parties review terms directly; FMH can provide a checklist but is not a legal intermediary.
+Outcome
+Moved in / listing filled / not a fit / no response / withdrawn.
+Blocked/reported
+Contact is prevented and moderation workflow can begin.
+
+6.2 Request design
+Connection requests should not be generic “Hi” spam. Provide optional prompts based on the actual listing and profile, such as “I can move in during your availability window,” “I saw your household cooking rules and they work for me,” or “Could I clarify whether maintenance is included?” Avoid exposing sensitive quiz responses. Let users choose the fields they share.
+6.3 Buddy-up groups
+A user starts a group and selects target areas, total budget, move-in window and desired household size.
+Invitees accept explicitly and can see the group's shared constraints; personal quiz answers remain private.
+Group requirements are aggregated with permission. Show where members' budgets/areas overlap and where they conflict.
+Group searches listings using combined constraints; don't simply average budgets if one member has a firm lower ceiling.
+Members can leave or dissolve the group; access to shared data changes accordingly.
+No member can expose another member's private details without consent.
+6.4 In-product messaging
+A basic connection inbox may be necessary for the web flow, but full real-time chat can be deferred. V1 can use structured connection requests, short messages and email/in-app notifications. If direct messaging is included, add report/block, rate limits, moderation signals, consent and contact-sharing controls from the beginning.
+6.5 Parent/trusted supporter workflow
+The adult seeker owns the account and decision.
+The seeker can share a selected listing summary or a revocable Homie Card with a parent/trusted supporter.
+Shared views can include disclosed rent, deposit, brokerage, locality, viewing time, host-reported rules and verification labels.
+Do not share private quiz answers, full chat transcript, social handles, exact address or contact details by default.
+Supporters have read-only access to explicitly shared items; access can expire or be revoked.
+Do not require a parent to approve an adult's housing decision.
+7. Listings, host value and inventory
+7.1 Host value proposition
+A host should get value in exchange for creating a listing: fewer irrelevant enquiries, clearer fit information, fewer repeated questions, preconfigured viewing slots, one-tap availability updates, a structured applicant queue and a better way to explain the household. The host quiz should be short because the listing already captures the property.
+7.2 Listing fields
+Category
+Fields
+Location
+Locality, nearby landmark/metro, approximate map pin; exact address hidden until approved viewing.
+Room
+Private/shared, furnished, bathroom arrangement, floor/lift if relevant, amenities, room photos, occupancy.
+Availability
+Available from, minimum duration, lease/notice terms where known, live status.
+Monthly cost
+Rent, maintenance, utilities, internet, parking and recurring charges; mark included/excluded/unknown.
+Upfront cost
+Deposit, brokerage, who pays brokerage, other one-off charges, when due, refund/return terms as reported.
+Household
+Resident count, household vibe, guest rules, food/cooking rules, quiet hours, chores, pets, smoking/alcohol boundaries.
+Viewing
+Recurring windows, slot length, lead time, buffer, in-person/video, blackout dates, capacity.
+Poster and authority
+Owner/current tenant/agent, permission-to-list declaration, verification status.
+Agreement
+Whether a written rental agreement/receipt is offered; not a certification of legal adequacy.
+Freshness
+Created, last confirmed, last synced, stale/paused/filled state.
+
+7.3 Listing freshness
+Rule
+Recommended initial behaviour
+Publish
+Required fields completed; consent to publish; basic moderation checks.
+Every 7 days
+Prompt host to confirm “still available” with one tap.
+After 7 days without confirmation
+Mark “availability needs confirmation” and reduce ranking.
+After 14 days without confirmation
+Pause listing until reconfirmed.
+When filled/withdrawn
+Host can mark filled/paused immediately; remove from discovery.
+User report
+Allow “this room is no longer available” and route to review.
+
+7.4 How to get listings
+Start with direct host/current-tenant onboarding and a small curated cohort.
+Use community partnerships, relocation groups, professional communities and referral loops to recruit supply.
+Allow hosts to share their own listing URL or submit a listing they are authorised to advertise.
+Add property manager, co-living or broker partnerships only with explicit permission and agreed data freshness mechanisms.
+Do not scrape/re-publish third-party listings, photos or personal contact details without rights/permission.
+Do not claim listings are live unless there is a confirmation or sync timestamp.
+7.5 Listing detail UI
+Top: photos, locality, room type, available date, host/household fit summary and last-confirmed timestamp. Next: rent and full monthly cost breakdown; upfront deposit/brokerage; house rules; viewing slots; what is verified and what is only host-reported. Primary CTA: “Request a viewing”. Secondary: “Ask Homie”, “Save”, “Report outdated listing”. Hide exact address and phone number until the relevant permission/booking step.
+7.6 Viewing calendar
+Hosts configure weekly availability windows and exceptions.
+Slots have timezone, start/end, capacity, booking buffer, minimum notice and meeting mode.
+Seekers choose a slot; the host can confirm, decline or propose another time.
+Prevent double-booking and show pending vs confirmed status.
+Send reminders and allow cancellation/reschedule.
+After viewing, ask both parties for an outcome with optional reason.
+Keep no-show metadata private; do not create a public shaming/rating system.
+8. Rent, deposits, brokerage and payment safety
+8.1 Cost transparency
+Cost field
+Display rule
+Rent
+Monthly amount and what it covers.
+Maintenance
+Included/excluded, amount or calculation method.
+Utilities/internet
+Included/excluded and estimated/actual billing method.
+Deposit
+Amount and host-reported refund/return terms; do not promise it is legally refundable.
+Brokerage
+Amount/formula, who pays, when due, and whether poster is an agent/broker.
+Other fees
+Moving-in, society, key, cleaning or other charges disclosed by poster.
+Total upfront estimate
+Calculate first-month disclosed charges + deposit + brokerage; label unknowns.
+Recurring total
+Rent + known recurring costs; show missing costs rather than treating them as zero.
+
+8.2 Payments in V1
+FMH does not collect or hold rent, deposits or brokerage in V1.
+Users agree payment details directly with the relevant owner/agent and should verify the recipient and property before transferring money.
+Never ask users to send deposits to FMH or to an unverified intermediary.
+Encourage written terms and receipts; do not present general guidance as legal advice.
+Warn against OTP sharing, pressure to pay before viewing/verification, suspiciously low prices and payment to unrelated accounts.
+Any future payment integration requires legal/compliance review, a reputable payment partner, clear dispute processes and a unit-economics case.
+8.3 Legal and market variability
+Rental practices and legal obligations vary by location, tenancy type and agreement. The product should record what the poster states and disclose unknowns. Do not imply a standard deposit, standard brokerage or legally sufficient agreement. Have India-qualified counsel review terms, notices, moderation and payment-related flows.
+PART VII — TRUST, INDIA-SPECIFIC CONTEXT AND PRIVACY
+9. Food, religion and household practices
+These are first-class shared-living compatibility factors. They should not be hidden inside a generic “kitchen” question. At the same time, identity and practical household rules must remain distinct.
+Capture
+Use in matching
+Do not do
+Dietary preference (self-declared)
+Show only if user chooses; use to explain practical fit where relevant.
+Infer diet from religion, name, region or appearance.
+Food cooked at home
+Treat explicit non-negotiable household rules as feasibility constraints.
+Assume a vegetarian person always requires a vegetarian household.
+Utensils/storage/cleaning
+Compare practical arrangements; allow separate cookware/storage if both agree.
+Assume everyone with the same diet has the same kitchen rules.
+Prayer/fasting/festival routines
+Capture the practical arrangement a user wants respected, if they choose to share.
+Require religion disclosure or infer religious observance.
+Religion/belief identity
+Optional and private by default; do not use as automatic score/eligibility proxy.
+Create hidden identity-based ranking or discriminatory exclusion.
+Alcohol/smoking/pets/guests
+Use stated boundaries and household rules; hard filter only when truly non-negotiable.
+Infer behaviour from a person's identity or social profile.
+
+Design rule: compare what people need from the home, not stereotypes about who they are. Make sensitive information optional, explain why any field is asked, and do not reveal private answers in match explanations without permission.
+10. Verification
+Label
+Meaning and limitation
+Phone/email verified
+Control of contact channel was checked; not proof of identity.
+Social account linked
+A supported account was linked through a permitted method; not proof of safety, address or financial reliability.
+Listing details reviewed
+A defined set of fields/evidence was reviewed; list what was reviewed.
+Poster authority declared
+Poster declares owner/agent/current-tenant status and authority; not legal proof unless a separate process exists.
+Identity checked
+Use only if a genuine identity-check process was completed; explain provider and limitations.
+Not verified
+No relevant check completed or check failed/expired.
+
+If social verification is required for discoverability, provide an alternative reviewed route for people without supported social accounts. Keep the alternative practical and privacy-preserving. Do not scrape social profiles or treat follower count as trustworthiness.
+11. Safety and moderation
+Phone/email verification and rate limits.
+Private-by-default profiles and explicit publish/unpublish controls.
+Connection approval before contact details are revealed.
+Report, block, mute, hide listing and account deletion controls.
+Admin queue for suspicious listings, impersonation, harassment and payment scams.
+Evidence collection that is proportionate and secure; defined retention policy.
+Escalation playbook with response targets for high-risk reports.
+No public reputation score for protected traits, no public shaming and no unsupported “safe person” badge.
+Clear user-facing language: verification is a specific check, not a guarantee.
+12. Privacy and legal readiness
+India's Digital Personal Data Protection Act, 2023 and Digital Personal Data Protection Rules, 2025 should inform product design. The Rules were notified in November 2025 and include phased commencement; legal counsel must confirm which provisions and timelines apply at launch. See official MeitY material: https://www.meity.gov.in/documents/act-and-policies/digital-personal-data-protection-rules-2025-gDOxUjMtQWa and PIB summary: https://www.pib.gov.in/PressReleasePage.aspx?PRID=2190655&lang=2&reg=48.
+Plain-language notice describing purposes, data categories, sharing, retention and user rights.
+Separate consent for publishing profile, linking social account, sharing with supporter, and processing audio where relevant.
+Collect minimum data needed; don't store raw voice notes or complete chat histories by default.
+Access, correction, deletion, consent withdrawal and unpublish workflows.
+Document AI and hosting subprocessors and what data each receives.
+Encryption in transit, appropriate at-rest protection, least-privilege access, secrets management, backups and audit logs.
+No use of private quiz responses to train general models without a separate informed opt-in.
+Retention schedule for profiles, raw message references, audio/transcripts, reports, logs and consent records.
+Counsel review of sensitive data, user age handling, verification, moderation, advertising, payments and rental-related claims.
+PART VIII — UX, UI AND ENGINEERING
+13. Information architecture
+Navigation
+Contains
+My Homie
+Profile, quiz answers, verification, privacy, language and shareable Homie Card.
+Discover
+Intent-aware tabs: People, Households, Rooms.
+Connections
+Requests, accepted connections, viewing requests and next steps.
+My Group
+Buddy-up group, member constraints and shared shortlist; visible when relevant.
+Ask Homie
+Conversational action to update profile, ask questions or get help.
+
+13.1 Screen map
+Screen
+Key UI elements
+Primary action
+Landing
+Tagline, three intent cards, continue/resume, trust note.
+Choose intent.
+Chat onboarding
+Language control, transcript, text field, mic/upload where supported, progress, understood-facts card.
+Send, edit, confirm.
+Housing essentials
+Area chips, budget min/max, total-cost toggle, move-in date/range, room type, duration.
+Save requirements.
+Quiz
+One question, quick replies, “it depends”, progress, back/edit.
+Answer and continue.
+Profile review
+Homie Card preview, lifestyle summary, privacy preview, verification status.
+Edit, verify, publish.
+Discover
+People/households/rooms tabs, filters, cards, freshness and fit notes.
+Open, save, request.
+Listing detail
+Photos, costs, household rules, verification, last confirmed, slots.
+Request viewing.
+Host dashboard
+Listing status, leads, upcoming viewings, quick actions, freshness prompt.
+Manage listing.
+Calendar
+Slots, pending/confirmed states, reminders, reschedule/cancel.
+Book/confirm.
+Connection detail
+Mutual status, grounded fit factors, differences to discuss.
+Accept, decline, message.
+Supporter share
+Choose fields, preview, expiry/revoke.
+Share selected summary.
+Settings/safety
+Language, visibility, social links, consent, blocked users, reports, deletion.
+Control account.
+Admin
+Report/listing queues, verification review, audit trail.
+Review/escalate.
+
+13.2 Structural wireframes
+LANDING — MOBILE
+[ Find My Homie ]
+Find your person, then your place.
+Tell Homie what you're looking for.
+[ I need a room ]
+[ I want to find people first ]
+[ I have a room to fill ]
+Already started? Continue →
+
+HOMIE CHAT — MOBILE
+[ Language: English ▾ ]                           [ 2/5 ]
+Homie: What monthly budget feels comfortable?
+[ ₹12–15k ] [ ₹15–18k ] [ ₹18–22k ] [ Other ]
+[ Type naturally…                           🎙 ]
+I understood: ₹18k max, maintenance included? [Edit]
+
+LISTING DETAIL — MOBILE
+[ Room photos ]
+Private room · Domlur area · available from 1 Nov
+Rent ₹17,000 + maintenance ₹2,000
+Deposit ₹50,000 · Brokerage: not stated
+Availability last confirmed 2 days ago
+House rules: quiet weekdays; guests by prior notice
+[ Request a viewing ]  [ Ask Homie ]
+Exact address shared according to host's approval and booking settings.
+These are structure sketches, not final visual designs. Translate into Figma components and responsive states before polished implementation.
+14. Data model
+Entity
+Key fields
+User
+id, auth, contact verification, locale, status, created_at.
+Profile
+intents, areas, budget, move-in window, room needs, privacy/publish state.
+ProfileFact
+field key/value, source channel, confidence, confirmation state, source reference, timestamp.
+QuizQuestion / QuizResponse
+question version, answer, optional note, dimension, skip state.
+HouseholdProfile
+food/cooking rules, guests, routines, chores, privacy, cultural/practice arrangements.
+SocialVerification
+provider, method, status, checked_at, expiry, limitations.
+Listing
+poster, authority declaration, location, room, costs, terms, photos, source, status, last confirmed.
+ViewingSlot / ViewingRequest
+slot rules, host/listing, seeker, state, reminder, outcome.
+ConnectionRequest
+sender, recipient/listing, state, consent and contact reveal state.
+Group / GroupMember
+creator, member permissions, combined constraints, saved listings.
+ConsentRecord
+purpose, notice version, choice, timestamp, channel.
+Report / ModerationAction
+target, category, evidence reference, status, admin action, audit.
+AuditEvent
+actor, action, target, timestamp and minimal metadata.
+AnalyticsEvent
+event name, pseudonymous IDs, properties, timestamp.
+
+15. Technical architecture
+Recommended default: a modular monolith with a relational database and one API. The product does not need microservices, a vector database or complex event streaming at pilot stage.
+Responsive web/PWA before native apps.
+Managed authentication, relational database, object storage and hosting where affordable.
+Channel adapters map web/messaging inputs to one canonical conversation API.
+AI extraction produces schema-validated proposals; deterministic backend rules control writes and permissions.
+Matching is a separate deterministic service/module with versioned weights and explanation records.
+Scheduled job handles listing freshness, reminders and expired slots.
+Email/in-app notifications first; add paid SMS/messaging only after value is measured.
+Development, staging and production environments; migrations, backups, monitoring and rollback notes.
+Company-controlled GitHub, domain, cloud, database and AI accounts. No critical infrastructure under a contractor's personal account.
+Document data flows and third-party processors before enabling voice or messaging.
+15.1 Cost controls
+Cost driver
+Lean decision
+LLM
+Small/low-cost model for structured extraction; stronger model only for complex ambiguity; short context.
+Voice
+Optional; limit duration/size; transcribe on request; don't keep raw audio by default.
+Maps
+Locality chips and approximate pins first; paid geocoding only when needed.
+Messaging
+Web first; approved messaging integration after policy validation; avoid bulk outbound messages.
+Images
+Compress, cap count/size, use managed storage and lifecycle rules.
+Analytics
+Simple event funnel and weekly spreadsheet/dashboard before expensive tooling.
+Operations
+Self-serve listing updates and one-tap freshness prompts; manually curate only the initial cohort.
+Development
+One codebase, reusable components, no native apps or microservices before validation.
+
+PART IX — PILOT, BUSINESS MODEL AND EXECUTION
+16. Analytics and success metrics
+Metric
+What it tells us
+Onboarding start → profile publish
+Is the flow understandable and worth completing?
+Time to first relevant result
+Does the product deliver early value?
+Listing freshness rate
+Can users trust that rooms are still available?
+Connection request acceptance
+Are recommendations and requests relevant?
+Viewing request → confirmed → attended
+Does coordination reduce friction?
+Viewing → move-in / listing filled
+Does FMH solve the actual housing job?
+Host time to fill vacancy
+Is the supply-side value clear?
+AI correction rate by field/language
+Which extraction cases need work?
+Reports/scam incidence and response time
+Are trust controls working?
+Cost per active user and successful move-in
+Can the model scale affordably?
+
+16.1 Events to implement
+onboarding_started; intent_selected; housing_essentials_completed; quiz_answered; quiz_completed; profile_reviewed; social_verification_started/completed; profile_published; listing_created/confirmed/staled/paused/filled; profile_viewed; listing_viewed; connection_requested/accepted/declined; viewing_requested/confirmed/cancelled/attended; terms_opened; move_in_confirmed; report_submitted; profile_unpublished; account_deleted.
+17. Monetisation hypotheses
+Model
+When to test
+Guardrail
+Free core matching/discovery
+Pilot default.
+Do not limit essential safety tools.
+Paid concierge / curated intros
+Only after enough relevant supply exists; test small one-off price points, e.g. ₹199–₹499 as a hypothesis.
+Clearly describe service; no guaranteed housing result.
+Host tools
+Later, if hosts repeatedly need scheduling or applicant workflow features.
+Payment must not imply verification or safety.
+Property manager/co-living partnerships
+After proving qualified demand and reliable lead handling.
+Disclose commercial relationships; no hidden ranking bias.
+Move-in service referrals
+Later for movers, cleaning, internet, furniture etc.
+Disclose commissions and protect user choice.
+Subscription
+Only after repeat use and willingness to pay are demonstrated.
+Avoid charging seekers before the product has sufficient liquidity.
+
+18. Pilot plan
+Recruit 15–25 target users for interviews across room seekers, buddy-up seekers and hosts; include diverse language and household-practice needs.
+Run usability tests on the onboarding and listing form before full build.
+Create a language test set with anonymised real-world examples: casual English, Hinglish, Kannada-English, negation, corrections, voice-note transcription and ambiguous budget/date statements.
+Manually onboard an initial set of listings in a focused Bengaluru cluster; verify poster authority and refresh availability.
+Pilot with clear consent, reporting and human moderation from day one.
+Review weekly: failed extractions, incomplete profiles, stale listings, request acceptance, viewing attendance, safety issues and user feedback.
+Only after the flow works end-to-end, expand localities, languages, messaging channels and paid features.
+19. Grants and funding — what to check
+Funding availability and eligibility change. Treat the following as research leads, not promised funding. Confirm the live call, legal entity requirements, founder ownership, registered office, incorporation age, technical eligibility and required certificates before preparing an application.
+Opportunity
+Assessment
+Action
+Karnataka ELEVATE Minorities 2026
+Official portal previously indicated a 13 Oct–13 Nov 2026 window and grant up to ₹50 lakh, subject to specific community/ownership/entity requirements.
+Check official portal immediately and apply only if eligible: https://elevate.startupkarnataka.in/
+Karnataka ELEVATE NxT 2026
+Up to ₹1 crore reported for deeptech/high-complexity technology; likely weak fit if FMH mainly integrates existing AI APIs.
+Do not contort the pitch. Review criteria: https://elevate.startupkarnataka.in/
+NIDHI / PRAYAS
+Incubator-level calls vary; often focus on technology prototypes and specific eligibility.
+Check current open calls: https://nidhi.dst.gov.in/
+Startup India Seed Fund Scheme
+The official portal previously stated the startup application deadline was 31 May 2026; don't assume it is open now.
+Monitor for a successor/new call: https://seedfund.startupindia.gov.in/
+MeitY-supported incubators / GENESIS
+Fit depends on programme, location, stage and technology scope.
+Explore incubator-specific calls: https://www.myscheme.gov.in/schemes/genesis
+
+19.1 Grant folder checklist
+Indian entity and ownership documents, where applicable.
+Founder bios, cap table and incorporation details.
+Problem evidence: interviews, waitlist, pilot data and user outcomes.
+Product plan, technical differentiation and architecture.
+Milestone-based budget and use of funds.
+Market entry plan, risks, data protection and safety approach.
+Letters of support/partnerships if requested.
+Eligibility-specific certificates and declarations.
+20. Build roadmap and definition of done
+Phase
+Scope
+Exit condition
+0 — Product foundation
+Repo/accounts, schema, consent, design system, authentication, basic analytics.
+Company-controlled infrastructure; working account and privacy settings.
+1 — Seeker/host onboarding
+Intent, housing essentials, quiz, host listing form, review/publish, social-verification workflow.
+Profiles and listings can be created, edited, saved and published explicitly.
+2 — Discovery and scoring
+Feasibility filters, compatibility rules, explanations, people/room cards.
+Results are relevant and grounded; unknown data is handled honestly.
+3 — Connection and viewing
+Requests, consent-controlled contact, host calendar, reminders, report/block, admin tools.
+A full request-to-viewing flow works end-to-end.
+4 — Homie AI
+Structured text extraction, corrections, multilingual test set, optional voice.
+Measured extraction quality; user can correct everything.
+5 — Pilot optimisation
+Listing freshness, outcomes, cost monitoring, interviews and scoring calibration.
+Evidence supports expansion decisions.
+
+20.1 Definition of done
+One canonical profile across every supported interface.
+User can inspect/edit extracted facts, save/resume and explicitly publish.
+Food and household practice fields exist and have clear privacy controls.
+Host onboarding is shorter than seeker onboarding.
+Listings display total known costs, deposit, brokerage and freshness.
+Hard constraints are checked before compatibility score.
+Scores show coverage/uncertainty and grounded explanations.
+Connection approval and contact reveal rules are enforced server-side.
+Viewing slots prevent double-booking and support reschedule/cancel.
+Report/block/unpublish/delete and admin audit controls work.
+Critical journeys have automated tests; responsive mobile layout tested.
+Deployment, backups, migrations, secrets, rollback and handover are documented.
+21. Open questions to resolve 
+Choose the first Bengaluru locality cluster based on supply recruitment, not only demand.
+Confirm the first supported languages and quality bar for each.
+Decide whether voice input ships in the initial pilot or after text extraction stabilises.
+Define the supported social-verification methods and alternative route.
+Define listing evidence review and moderation response targets.
+Confirm legal entity, company-owned accounts, privacy retention and legal review.
+Re-check WhatsApp terms/product eligibility at the moment of integration.
+Decide how much messaging is required for V1 versus structured requests and email notifications.
+Agree on the minimum successful outcome definition: attended viewing, accepted applicant or confirmed move-in.
+22. Final product thesis
+The moat is not the chatbot or the quiz alone. It is the structured understanding of shared-living preferences, reliable listing operations, consent-based trust signals and the feedback loop connecting compatibility predictions to real housing outcomes.
+The first version should prove three things: users can describe their needs naturally; FMH can convert those needs into useful and explainable matches; and hosts can keep listings current while arranging viewings with less effort. If those loops work in one Bengaluru cluster, the product has evidence to justify more languages, messaging integrations, monetisation and future cities.

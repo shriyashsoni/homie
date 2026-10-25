@@ -88,6 +88,32 @@ export const seedDemo = internalMutation({
   },
 });
 
+/** Create (or reset) an admin account with a given email + password hash + name.
+ *  Run: npx convex run admin:createAdminUser '{"email":"x","passwordHash":"pbkdf2$...","firstName":"X"}' */
+export const createAdminUser = internalMutation({
+  args: { email: v.string(), passwordHash: v.string(), firstName: v.optional(v.string()), lastName: v.optional(v.string()) },
+  handler: async (ctx, a) => {
+    const email = a.email.trim().toLowerCase();
+    const now = Date.now();
+    const existing = await ctx.db.query("users").withIndex("by_email", (q) => q.eq("email", email)).unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        passwordHash: a.passwordHash, isAdmin: true, role: "ADMIN",
+        isActive: true, emailVerified: true,
+        firstName: a.firstName ?? existing.firstName, lastName: a.lastName ?? existing.lastName,
+        updatedAt: now,
+      });
+      return { updated: true, email };
+    }
+    await ctx.db.insert("users", {
+      email, passwordHash: a.passwordHash, firstName: a.firstName || "Shriyash", lastName: a.lastName,
+      role: "ADMIN", isActive: true, isAdmin: true, emailVerified: true, phoneVerified: false,
+      preferredLanguage: "en", createdAt: now, updatedAt: now,
+    });
+    return { created: true, email };
+  },
+});
+
 /** Promote an existing registered user to admin by email.
  *  Run: `npx convex run admin:makeAdmin '{"email":"you@example.com"}'` */
 export const makeAdmin = internalMutation({

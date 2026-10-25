@@ -28,12 +28,18 @@ export const list = query({
       .order("desc")
       .take(200);
 
-    if (args.area) rows = rows.filter((l) => l.area === args.area);
+    if (args.area) {
+      const a = args.area.toLowerCase();
+      rows = rows.filter((l) => l.area.toLowerCase().includes(a) || l.city.toLowerCase().includes(a));
+    }
     if (args.roomType) rows = rows.filter((l) => l.roomType === args.roomType);
     if (args.budgetMax) rows = rows.filter((l) => l.rent <= args.budgetMax!);
     if (args.search) {
       const s = args.search.toLowerCase();
-      rows = rows.filter((l) => l.title.toLowerCase().includes(s) || l.area.toLowerCase().includes(s));
+      rows = rows.filter((l) =>
+        l.title.toLowerCase().includes(s) ||
+        l.area.toLowerCase().includes(s) ||
+        l.city.toLowerCase().includes(s));
     }
     rows = rows.slice(0, args.limit ?? 60);
     const listings = await Promise.all(rows.map((l) => withHost(ctx, l)));

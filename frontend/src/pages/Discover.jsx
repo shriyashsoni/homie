@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, X, Home, Users, Sparkles, MapPin, ChevronDow
 import { listingApi } from '../api';
 import ListingCard from '../components/cards/ListingCard';
 import Button from '../components/ui/Button';
+import LocationSearch from '../components/ui/LocationSearch';
 
 const AREAS = [
   'Indiranagar', 'Koramangala', 'HSR Layout', 'BTM Layout', 'Whitefield',
@@ -55,13 +56,7 @@ export default function Discover() {
     retry: false,
   });
 
-  const allListings  = data?.data?.data?.listings || [];
-  const listings     = search
-    ? allListings.filter((l) =>
-        l.title?.toLowerCase().includes(search.toLowerCase()) ||
-        l.area?.toLowerCase().includes(search.toLowerCase())
-      )
-    : allListings;
+  const listings = data?.data?.data?.listings || [];
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
@@ -105,38 +100,26 @@ export default function Discover() {
       {/* ─── Rooms tab ─── */}
       {tab === 'rooms' && (
         <>
-          {/* Search bar + filter toggle */}
+          {/* International location search + filter toggle */}
           <div className="flex gap-2.5">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-clay" />
-              <input
-                placeholder="Search area, locality…"
-                className="input-field pl-11 pr-4 h-11"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+            <div className="flex-1">
+              <LocationSearch
+                value={filters.area}
+                placeholder="Search any city or area worldwide…"
+                onChange={(t) => setFilters((f) => ({ ...f, area: t }))}
+                onSelect={(r) => setFilters((f) => ({ ...f, area: r ? (r.city || r.area) : '' }))}
               />
-              {search && (
-                <button onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-sand text-clay">
-                  <X size={13} />
-                </button>
-              )}
             </div>
             <button
               onClick={() => setShowFilters((v) => !v)}
-              className={`h-11 flex items-center gap-2 px-4 rounded-xl border text-sm font-semibold transition-all duration-150 ${
-                showFilters || activeFilterCount > 0
+              className={`h-12 flex items-center gap-2 px-4 rounded-xl border text-sm font-semibold transition-all duration-150 ${
+                showFilters || filters.budgetMax || filters.roomType
                   ? 'bg-brand-50 border-brand-300 text-brand-600'
                   : 'bg-white border-charcoal/12 text-charcoal/80 hover:border-charcoal/20'
               }`}
             >
               <SlidersHorizontal size={15} />
               Filters
-              {activeFilterCount > 0 && (
-                <span className="w-5 h-5 bg-brand-500 text-white rounded-full text-[10px] font-black flex items-center justify-center">
-                  {activeFilterCount}
-                </span>
-              )}
               <ChevronDown size={13} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
           </div>
@@ -144,18 +127,7 @@ export default function Discover() {
           {/* Filter panel */}
           {showFilters && (
             <div className="card p-5 animate-fade-up">
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="section-label mb-2 block">Area</label>
-                  <select
-                    value={filters.area}
-                    onChange={(e) => setFilters((f) => ({ ...f, area: e.target.value }))}
-                    className="input-field text-sm"
-                  >
-                    <option value="">All areas</option>
-                    {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
-                  </select>
-                </div>
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="section-label mb-2 block">Max budget (₹/mo)</label>
                   <input

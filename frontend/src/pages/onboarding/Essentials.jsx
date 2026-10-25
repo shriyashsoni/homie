@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, MapPin, IndianRupee, Calendar } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import LocationSearch from '../../components/ui/LocationSearch';
 import { profileApi } from '../../api';
 
 const BENGALURU_AREAS = [
@@ -80,8 +81,30 @@ export default function OnboardingEssentials() {
           <div>
             <label className="block text-sm font-medium text-charcoal mb-3 flex items-center gap-2">
               <MapPin size={16} className="text-brand-500" />
-              Which areas in Bengaluru work for you?
+              Which areas work for you? <span className="text-clay font-normal">(any city worldwide)</span>
             </label>
+            <div className="mb-3">
+              <LocationSearch
+                placeholder="Search & add any city or area…"
+                onSelect={(r) => {
+                  const name = r && (r.area || r.city);
+                  if (name && !form.selectedAreas.includes(name)) {
+                    setForm((f) => ({ ...f, selectedAreas: [...f.selectedAreas, name] }));
+                  }
+                }}
+              />
+            </div>
+            {form.selectedAreas.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {form.selectedAreas.map((a) => (
+                  <button key={a} onClick={() => toggleArea(a)}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-brand-500 text-white flex items-center gap-1.5">
+                    {a} <span className="text-white/70">✕</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="text-2xs text-clay mb-2">Popular in Bengaluru:</p>
             <div className="flex flex-wrap gap-2">
               {BENGALURU_AREAS.map((area) => (
                 <button

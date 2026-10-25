@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import LocationSearch from '../../components/ui/LocationSearch';
 import { listingApi } from '../../api';
 
 const STEPS = ['Location & Room', 'Costs', 'Availability', 'Household'];
 
-const BENGALURU_AREAS = ['Indiranagar', 'Koramangala', 'HSR Layout', 'BTM Layout', 'Whitefield', 'Bellandur', 'Sarjapur', 'Electronic City', 'Marathahalli', 'JP Nagar', 'Jayanagar', 'Banashankari', 'Hebbal', 'Yelahanka', 'Rajajinagar', 'Malleshwaram', 'Domlur', 'Brookefield'];
 
 export default function ListingCreate() {
   const navigate = useNavigate();
@@ -115,11 +115,13 @@ export default function ListingCreate() {
               onChange={(e) => set('title', e.target.value)}
             />
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1.5">Area *</label>
-              <select value={form.area} onChange={(e) => set('area', e.target.value)} className="input-field">
-                <option value="">Select area</option>
-                {BENGALURU_AREAS.map((a) => <option key={a}>{a}</option>)}
-              </select>
+              <label className="block text-sm font-medium text-charcoal mb-1.5">Location * <span className="text-clay font-normal">(any city / area)</span></label>
+              <LocationSearch
+                value={form.area}
+                placeholder="Search your city or neighbourhood…"
+                onChange={(t) => set('area', t)}
+                onSelect={(r) => { if (r) { set('area', r.area || r.city); set('city', r.city || r.area); } }}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-charcoal mb-2">Room type *</label>

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from 'convex/react';
 import { Send, ChevronLeft, Shield } from 'lucide-react';
-import { conversationApi } from '../api';
+import { api, getToken } from '../api/convex';
 import { useAuth } from '../contexts/AuthContext';
 import { avatarFor } from '../assets/photos';
 
@@ -10,19 +10,17 @@ export default function Conversation() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const token = getToken();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
 
-  const { data } = useQuery({
-    queryKey: ['conversation', id],
-    queryFn: () => conversationApi.getById(id),
-    refetchInterval: 10000,
-    retry: false,
-  });
+  // Live subscription — updates instantly when the other person sends a message.
+  const data = useQuery(api.conversations.getById, token ? { token, id } : 'skip');
+  const sendMessageMut = useMutation(api.conversations.sendMessage);
+  const markReadMut = useMutation(api.conversations.markRead);
 
-  const conv = data?.data?.data?.conversation;
+  const conv = data?.conversation;
   const messages = conv?.messages || [];
   const other = conv?.userA?.id === user?.id ? conv?.userB : conv?.userA;
 
@@ -30,13 +28,17 @@ export default function Conversation() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
+  // Mark incoming messages read whenever the thread updates.
+  useEffect(() => {
+    if (conv && token) markReadMut({ token, id }).catch(() => {});
+  }, [messages.length, conv, token, id, markReadMut]);
+
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || sending) return;
     setSending(true);
     try {
-      await conversationApi.sendMessage(id, message.trim());
+      await sendMessageMut({ token, id, content: message.trim() });
       setMessage('');
-      queryClient.invalidateQueries(['conversation', id]);
     } catch {}
     setSending(false);
   };
@@ -61,13 +63,22 @@ export default function Conversation() {
         </div>
         <div className="min-w-0">
           <p className="font-semibold text-sm text-charcoal truncate">{other?.firstName} {other?.lastName}</p>
-          <p className="text-2xs text-olive font-medium flex items-center gap-1"><Shield size={10} /> Verified · Connected</p>
+          <p className="text-2xs text-olive font-medium flex items-center gap-1"><Shield size={10} /> Verified · Live</p>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-2.5 pb-2 px-1">
-        {messages.length === 0 && (
+        {data === undefined && (
+          <div className="space-y-2.5">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={`flex ${i % 2 ? 'justify-end' : 'justify-start'}`}>
+                <div className="skeleton h-10 w-40 rounded-2xl" />
+              </div>
+            ))}
+          </div>
+        )}
+        {data && messages.length === 0 && (
           <div className="text-center py-12">
             <div className="w-14 h-14 rounded-3xl bg-sand mx-auto mb-3 flex items-center justify-center">
               <img src={avatarFor(other)} alt="" className="w-10 h-10 rounded-2xl object-cover" />

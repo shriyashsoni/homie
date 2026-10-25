@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from 'convex/react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, ChevronRight } from 'lucide-react';
-import { conversationApi } from '../api';
+import { api, getToken } from '../api/convex';
 import EmptyState from '../components/ui/EmptyState';
 import { avatarFor } from '../assets/photos';
 
@@ -17,14 +17,11 @@ function timeAgo(ts) {
 
 export default function Messages() {
   const navigate = useNavigate();
-  const { data, isLoading } = useQuery({
-    queryKey: ['conversations'],
-    queryFn: () => conversationApi.list(),
-    retry: false,
-    refetchInterval: 15000,
-  });
-
-  const conversations = data?.data?.data?.conversations || [];
+  const token = getToken();
+  // Live subscription — inbox reorders/updates instantly on new messages.
+  const data = useQuery(api.conversations.list, token ? { token } : 'skip');
+  const isLoading = data === undefined;
+  const conversations = data?.conversations || [];
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">

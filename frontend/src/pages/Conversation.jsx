@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
-import { Send, ChevronLeft, Shield } from 'lucide-react';
+import { Send, ChevronLeft, Shield, ImagePlus, Loader2 } from 'lucide-react';
 import { api, getToken } from '../api/convex';
 import { useAuth } from '../contexts/AuthContext';
 import { avatarFor } from '../assets/photos';
@@ -13,12 +13,33 @@ export default function Conversation() {
   const token = getToken();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef(null);
+  const fileRef = useRef(null);
 
   // Live subscription — updates instantly when the other person sends a message.
   const data = useQuery(api.conversations.getById, token ? { token, id } : 'skip');
   const sendMessageMut = useMutation(api.conversations.sendMessage);
   const markReadMut = useMutation(api.conversations.markRead);
+  const genUploadUrl = useMutation(api.conversations.generateUploadUrl);
+
+  const handleImage = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return alert('Please choose an image file.');
+    if (file.size > 8 * 1024 * 1024) return alert('Image must be under 8 MB.');
+    setUploading(true);
+    try {
+      const url = await genUploadUrl({ token });
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': file.type }, body: file });
+      const { storageId } = await res.json();
+      await sendMessageMut({ token, id, imageId: storageId });
+    } catch {
+      alert('Could not send the image. Please try again.');
+    }
+    setUploading(false);
+  };
 
   const conv = data?.conversation;
   const messages = conv?.messages || [];
@@ -92,13 +113,20 @@ export default function Conversation() {
           return (
             <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}>
               {!isMe && <img src={avatarFor(other)} alt="" className="w-6 h-6 rounded-full object-cover flex-shrink-0" />}
-              <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+              <div className={`max-w-[75%] rounded-2xl text-sm leading-relaxed overflow-hidden ${
                 isMe ? 'bg-brand-500 text-white rounded-br-md' : 'bg-card text-charcoal rounded-bl-md shadow-sm border border-charcoal/[0.06]'
               }`}>
-                <p>{msg.content}</p>
-                <p className={`text-[10px] mt-1 ${isMe ? 'text-white/60' : 'text-clay'}`}>
-                  {new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                {msg.imageUrl && (
+                  <a href={msg.imageUrl} target="_blank" rel="noreferrer" className="block">
+                    <img src={msg.imageUrl} alt="" className="max-h-64 w-full object-cover" />
+                  </a>
+                )}
+                <div className={msg.imageUrl ? 'px-4 py-2' : 'px-4 py-2.5'}>
+                  {msg.content && <p>{msg.content}</p>}
+                  <p className={`text-[10px] ${msg.content ? 'mt-1' : ''} ${isMe ? 'text-white/60' : 'text-clay'}`}>
+                    {new Date(msg.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
             </div>
           );
@@ -107,10 +135,19 @@ export default function Conversation() {
       </div>
 
       {/* Input */}
-      <div className="card p-2 flex items-end gap-2 mt-3">
+      <div className="card p-2 flex items-end gap-1.5 mt-3">
+        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          title="Send a photo"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-clay hover:bg-sand hover:text-brand-500 transition-colors flex-shrink-0 disabled:opacity-50"
+        >
+          {uploading ? <Loader2 size={18} className="animate-spin" /> : <ImagePlus size={18} />}
+        </button>
         <textarea
-          className="flex-1 resize-none bg-transparent outline-none text-sm text-charcoal placeholder-clay/60 max-h-24 px-3 py-2"
-          placeholder="Type a message…"
+          className="flex-1 resize-none bg-transparent outline-none text-sm text-charcoal placeholder-clay/60 max-h-24 px-2 py-2"
+          placeholder={uploading ? 'Sending photo…' : 'Type a message…'}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKey}

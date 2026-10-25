@@ -21,13 +21,14 @@ export const list = query({
       const otherId = c.userAId === user._id ? c.userBId : c.userAId;
       const other = await ctx.db.get(otherId);
       const last = (await ctx.db.query("messages").withIndex("by_conversation", (q) => q.eq("conversationId", c._id)).order("desc").take(1))[0];
-      return { id: c._id, other: pub(other), lastMessage: last?.content ?? null, updatedAt: c.updatedAt };
+      const lastMessage = last ? (last.content || (last.imageId ? "📷 Photo" : "")) : null;
+      return { id: c._id, other: pub(other), lastMessage, updatedAt: c.updatedAt };
     }));
     return { conversations: result };
   },
 });
 
-/** A single conversation with messages and both parties. */
+/** A single conversation with messages (image URLs resolved) and both parties. */
 export const getById = query({
   args: { token: v.string(), id: v.id("conversations") },
   handler: async (ctx, { token, id }) => {
@@ -40,30 +41,47 @@ export const getById = query({
       ctx.db.get(conv.userBId),
       ctx.db.query("messages").withIndex("by_conversation", (q) => q.eq("conversationId", id)).order("asc").collect(),
     ]);
+    const messages = await Promise.all(msgs.map(async (m) => ({
+      id: m._id,
+      senderId: m.senderId,
+      content: m.content,
+      imageUrl: m.imageId ? await ctx.storage.getUrl(m.imageId) : null,
+      isRead: m.isRead,
+      createdAt: m.createdAt,
+    })));
     return {
-      conversation: {
-        id: conv._id,
-        userA: pub(userA),
-        userB: pub(userB),
-        messages: msgs.map((m) => ({ id: m._id, senderId: m.senderId, content: m.content, isRead: m.isRead, createdAt: m.createdAt })),
-      },
+      conversation: { id: conv._id, userA: pub(userA), userB: pub(userB), messages },
     };
   },
 });
 
-/** Send a message in a conversation. */
+/** Get a short-lived URL the client POSTs an image file to (Convex file storage). */
+export const generateUploadUrl = mutation({
+  args: { token: v.string() },
+  handler: async (ctx, { token }) => {
+    await requireUser(ctx, token);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+/** Send a message (text and/or an uploaded image) in a conversation. */
 export const sendMessage = mutation({
-  args: { token: v.string(), id: v.id("conversations"), content: v.string() },
-  handler: async (ctx, { token, id, content }) => {
+  args: {
+    token: v.string(),
+    id: v.id("conversations"),
+    content: v.optional(v.string()),
+    imageId: v.optional(v.id("_storage")),
+  },
+  handler: async (ctx, { token, id, content, imageId }) => {
     const user = await requireUser(ctx, token);
     const conv = await ctx.db.get(id);
     if (!conv) throw new Error("Conversation not found.");
     if (conv.userAId !== user._id && conv.userBId !== user._id) throw new Error("Not your conversation.");
-    const text = content.trim();
-    if (!text) throw new Error("Message is empty.");
+    const text = (content || "").trim();
+    if (!text && !imageId) throw new Error("Message is empty.");
     const now = Date.now();
     const msgId = await ctx.db.insert("messages", {
-      conversationId: id, senderId: user._id, content: text, isRead: false, createdAt: now,
+      conversationId: id, senderId: user._id, content: text, imageId, isRead: false, createdAt: now,
     });
     await ctx.db.patch(id, { updatedAt: now });
     return { id: msgId };

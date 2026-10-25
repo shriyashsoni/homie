@@ -265,6 +265,7 @@ export default defineSchema({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),
     content: v.string(),
+    imageId: v.optional(v.id("_storage")),
     isRead: v.boolean(),
     readAt: v.optional(v.number()),
     deletedAt: v.optional(v.number()),

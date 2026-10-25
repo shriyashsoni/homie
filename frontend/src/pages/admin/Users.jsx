@@ -5,6 +5,7 @@ import { adminApi } from '../../api';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import { avatarFor } from '../../assets/photos';
 
 export default function AdminUsers() {
   const queryClient = useQueryClient();
@@ -110,9 +111,7 @@ export default function AdminUsers() {
                   <tr key={u.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                          {u.firstName?.[0]}{u.lastName?.[0] || ''}
-                        </div>
+                        <img src={avatarFor(u)} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                         <div>
                           <p className="text-sm font-semibold text-charcoal">
                             {u.firstName} {u.lastName}
@@ -171,9 +170,7 @@ export default function AdminUsers() {
         {selectedUser && (
           <div className="space-y-4">
             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-              <div className="w-12 h-12 bg-brand-500 rounded-full flex items-center justify-center text-white font-bold">
-                {selectedUser.firstName?.[0]}{selectedUser.lastName?.[0] || ''}
-              </div>
+              <img src={avatarFor(selectedUser)} alt="" className="w-12 h-12 rounded-2xl object-cover" />
               <div>
                 <p className="font-bold text-charcoal">{selectedUser.firstName} {selectedUser.lastName}</p>
                 <p className="text-xs text-gray-500">{selectedUser.email}</p>

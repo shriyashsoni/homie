@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Search, Home, User, Link2, Calendar,
-  Bell, Settings, Shield, LogOut, X, ChevronRight
+  Bell, Settings, Shield, LogOut, X, ChevronRight, MessageCircle
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -10,6 +10,7 @@ const navItems = [
   { to: '/discover',      icon: Search,          label: 'Discover' },
   { to: '/listings',      icon: Home,            label: 'Listings' },
   { to: '/connections',   icon: Link2,           label: 'Connections' },
+  { to: '/messages',      icon: MessageCircle,   label: 'Messages' },
   { to: '/viewings',      icon: Calendar,        label: 'Viewings' },
   { to: '/profile',       icon: User,            label: 'My Profile' },
   { to: '/notifications', icon: Bell,            label: 'Notifications' },

@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Search, Home, Link2, User } from 'lucide-react';
+import { LayoutDashboard, Search, Home, MessageCircle, User } from 'lucide-react';
 
 const items = [
   { to: '/dashboard',   icon: LayoutDashboard, label: 'Home' },
   { to: '/discover',    icon: Search,          label: 'Discover' },
   { to: '/listings',    icon: Home,            label: 'Rooms' },
-  { to: '/connections', icon: Link2,           label: 'Connect' },
+  { to: '/messages',    icon: MessageCircle,   label: 'Chat' },
   { to: '/profile',     icon: User,            label: 'Profile' },
 ];
 

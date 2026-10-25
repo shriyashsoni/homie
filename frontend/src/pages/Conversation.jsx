@@ -52,7 +52,7 @@ export default function Conversation() {
     <div className="max-w-2xl mx-auto flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
       <div className="card px-3 py-2.5 mb-3 flex items-center gap-3">
-        <button onClick={() => navigate('/connections')} className="p-1.5 rounded-xl text-clay hover:bg-sand hover:text-charcoal transition-colors">
+        <button onClick={() => navigate('/messages')} className="p-1.5 rounded-xl text-clay hover:bg-sand hover:text-charcoal transition-colors">
           <ChevronLeft size={18} />
         </button>
         <div className="relative flex-shrink-0">

@@ -27,6 +27,7 @@ import ProfileView from '../pages/profile/View';
 import ProfileEdit from '../pages/profile/Edit';
 
 import Connections from '../pages/Connections';
+import Messages from '../pages/Messages';
 import Conversation from '../pages/Conversation';
 import Viewings from '../pages/Viewings';
 import Notifications from '../pages/Notifications';
@@ -100,6 +101,7 @@ export const router = createBrowserRouter([
           { path: '/profile/edit', element: <ProfileEdit /> },
           { path: '/profile/:id', element: <ProfileView /> },
           { path: '/connections', element: <Connections /> },
+          { path: '/messages', element: <Messages /> },
           { path: '/conversations/:id', element: <Conversation /> },
           { path: '/viewings', element: <Viewings /> },
           { path: '/notifications', element: <Notifications /> },

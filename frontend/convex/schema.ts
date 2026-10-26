@@ -393,4 +393,12 @@ export default defineSchema({
     userId: v.id("users"),
     joinedAt: v.number(),
   }).index("by_group", ["groupId"]).index("by_user", ["userId"]),
+
+  // WhatsApp AI agent conversation memory (one thread per phone number)
+  agentThreads: defineTable({
+    phone: v.string(),
+    userId: v.optional(v.id("users")),
+    history: v.array(v.object({ role: v.string(), content: v.string() })),
+    updatedAt: v.number(),
+  }).index("by_phone", ["phone"]),
 });
